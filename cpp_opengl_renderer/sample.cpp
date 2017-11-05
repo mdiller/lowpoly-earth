@@ -233,7 +233,59 @@ void	Axes( float );
 void	HsvRgb( float[3], float [3] );
 
 
-#include "globe.550"
+#include "globe.hpp"
+
+float White[] = { 1.,1.,1.,1. };
+// utility to create an array from 3 separate values:
+float *
+Array3(float a, float b, float c)
+{
+	static float array[4];
+	array[0] = a;
+	array[1] = b;
+	array[2] = c;
+	array[3] = 1.;
+	return array;
+}
+// utility to create an array from a multiplier and an array:
+float *
+MulArray3(float factor, float array0[3])
+{
+	static float array[4];
+	array[0] = factor * array0[0];
+	array[1] = factor * array0[1];
+	array[2] = factor * array0[2];
+	array[3] = 1.;
+	return array;
+}
+
+void
+SetPointLight(int ilight, float x, float y, float z, float r, float g, float b)
+{
+	glLightfv(ilight, GL_POSITION, Array3(x, y, z));
+	glLightfv(ilight, GL_AMBIENT, Array3(0., 0., 0.));
+	glLightfv(ilight, GL_DIFFUSE, Array3(r, g, b));
+	glLightfv(ilight, GL_SPECULAR, Array3(r, g, b));
+	glLightf(ilight, GL_CONSTANT_ATTENUATION, 1.);
+	glLightf(ilight, GL_LINEAR_ATTENUATION, 0.);
+	glLightf(ilight, GL_QUADRATIC_ATTENUATION, 0.);
+	glEnable(ilight);
+}
+
+void
+SetMaterial(float r, float g, float b, float shininess)
+{
+	glMaterialfv(GL_BACK, GL_EMISSION, Array3(0., 0., 0.));
+	glMaterialfv(GL_BACK, GL_AMBIENT, MulArray3(.4f, White));
+	glMaterialfv(GL_BACK, GL_DIFFUSE, MulArray3(1., White));
+	glMaterialfv(GL_BACK, GL_SPECULAR, Array3(0., 0., 0.));
+	glMaterialf(GL_BACK, GL_SHININESS, 2.f);
+	glMaterialfv(GL_FRONT, GL_EMISSION, Array3(0., 0., 0.));
+	glMaterialfv(GL_FRONT, GL_AMBIENT, Array3(r, g, b));
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, Array3(r, g, b));
+	glMaterialfv(GL_FRONT, GL_SPECULAR, MulArray3(.8f, White));
+	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+}
 
 // main program:
 
@@ -367,20 +419,18 @@ Display( )
 	glLoadIdentity( );
 
 
+	glEnable(GL_LIGHTING);
+
+
 	// set the eye position, look-at position, and up-vector:
 
-	if (mode_is_outside) {
-		gluLookAt(8, 8, -8,   0, 0, 0,   0, 1, 0);
-		glRotatef( (GLfloat)Yrot, 0., 1., 0. );
-		glRotatef( (GLfloat)Xrot, 1., 0., 0. );
-		if (Scale < MINSCALE)
-			Scale = MINSCALE;
-		glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
-	}
-	else {
-		gluLookAt(-0.4, 1.8, -4.9,   -0.4, 1.8, -10,   0, 1, 0);
-	}
-
+	gluLookAt(0, 0, 2, 0, 0, 0, 0, 1, 0);
+	SetPointLight(GL_LIGHT0, 2, 2, 2, 1, 1, 1);
+	glRotatef( (GLfloat)Yrot, 0., 1., 0. );
+	glRotatef( (GLfloat)Xrot, 1., 0., 0. );
+	if (Scale < MINSCALE)
+		Scale = MINSCALE;
+	glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
 
 	// set the fog parameters:
 
@@ -412,9 +462,15 @@ Display( )
 
 	glEnable( GL_NORMALIZE );
 
+	glShadeModel(GL_FLAT);
 
-	// DRAW HELICOPTER
+
+	SetMaterial(0, 0, 1, 80);
+	glutSolidSphere(0.5, 20, 20);
+
+	// DRAW GLOBE
 	glCallList(GlobeList);
+
 	
 
 	glEnd();
@@ -833,7 +889,7 @@ InitLists( )
 	InitGlobe();
 }
 
-int globe_radius = 5;
+int globe_radius = 1;
 
 point LocationToPoint(location loc) {
 	float lat_radian = loc.latitude * PI / 180;
@@ -850,18 +906,20 @@ void InitGlobe() {
 	GlobeList = glGenLists(1);
 	glNewList(GlobeList, GL_COMPILE);
 	glPushMatrix();
-	glBegin(GL_LINES);
-	for (int i = 0; i < globe_locations_count + 1; i++)
+	glBegin(GL_TRIANGLES);
+	for (int i = 0; i < globe_triangles_count; i++)
 	{
-		location l1 = globe_locations[i];
-		location l2 = globe_locations[i + 1];
-		point p1 = LocationToPoint(l1);
-		point p2 = LocationToPoint(l2);
+		triangle tri = globe_triangles[i];
+		point p1 = LocationToPoint(globe_locations[tri.p1]);
+		point p2 = LocationToPoint(globe_locations[tri.p2]);
+		point p3 = LocationToPoint(globe_locations[tri.p3]);
 
-		if (l1.latitude == l2.latitude) {
-			glVertex3f(p1.x, p1.y, p1.z);
-			glVertex3f(p2.x, p2.y, p2.z);
-		}
+		glNormal3f(p1.x, p1.y, p1.z);
+		glVertex3f(p1.x, p1.y, p1.z);
+		glNormal3f(p2.x, p2.y, p2.z);
+		glVertex3f(p2.x, p2.y, p2.z);
+		glNormal3f(p3.x, p3.y, p3.z);
+		glVertex3f(p3.x, p3.y, p3.z);
 	}
 	glEnd();
 	glPopMatrix();
