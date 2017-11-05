@@ -892,12 +892,13 @@ InitLists( )
 int globe_radius = 1;
 
 point LocationToPoint(location loc) {
+	float altitude = loc.elevation / 50000;
 	float lat_radian = loc.latitude * PI / 180;
 	float long_radian = loc.longitude * PI / 180;
 	point result = {
-		globe_radius * cos(lat_radian) * cos(long_radian),
-		globe_radius * cos(lat_radian) * sin(long_radian),
-		globe_radius * sin(lat_radian),
+		(globe_radius + altitude) * cos(lat_radian) * cos(long_radian),
+		(globe_radius + altitude) * cos(lat_radian) * sin(long_radian),
+		(globe_radius + altitude) * sin(lat_radian),
 	};
 	return result;
 }
@@ -913,6 +914,12 @@ void InitGlobe() {
 		point p1 = LocationToPoint(globe_locations[tri.p1]);
 		point p2 = LocationToPoint(globe_locations[tri.p2]);
 		point p3 = LocationToPoint(globe_locations[tri.p3]);
+
+		//point p1 = globe_points[tri.p1];
+		//point p2 = globe_points[tri.p2];
+		//point p3 = globe_points[tri.p3];
+
+
 
 		glNormal3f(p1.x, p1.y, p1.z);
 		glVertex3f(p1.x, p1.y, p1.z);

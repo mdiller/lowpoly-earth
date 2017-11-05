@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "@google/maps": "^0.4.5"
+    "@google/maps": "^0.4.5",
+    "async": "^2.5.0"
   },
   "devDependencies": {},
   "scripts": {

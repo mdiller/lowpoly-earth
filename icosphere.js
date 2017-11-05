@@ -9,12 +9,12 @@
 function create(recursionLevel) {
 	var points = [];
 	var triangles = [];
-	var point_index = 0;
-	var middle_point_index_cache = {}
+	var point_index = -1;
+	var middle_point_cache = {}
 
 	// add vertex to mesh, fix position to be on unit sphere, return index
 	function addPoint(x, y, z) {
-		var length = Math.sqrt(x * x + y * y + z * z);
+		var length = Math.sqrt((x * x) + (y * y) + (z * z));
 		points.push({
 			x: x / length,
 			y: y / length,
@@ -36,29 +36,25 @@ function create(recursionLevel) {
 	function getMiddlePoint(p1, p2)
 	{
 		// first check if we have it already
-		var first_is_smaller = p1 < p2;
-		var smaller_index = first_is_smaller ? p1 : p2;
-		var greater_index = first_is_smaller ? p2 : p1;
-		var key = (smaller_index << 32) + greater_index;
+		var cache_key = p1 < p2 ? `${p1}_${p2}` : `${p2}_${p1}`;
 
-		if (key in middle_point_index_cache) {
-			return middle_point_index_cache[key]
+		if (cache_key in middle_point_cache) {
+			return middle_point_cache[cache_key];
 		}
 
 		// not in cache, calculate it
 		var point1 = points[p1];
 		var point2 = points[p2];
-		var middle = {
-			x: (point1.x + point2.x) / 2.0, 
-			y: (point1.y + point2.y) / 2.0, 
-			z: (point1.z + point2.z) / 2.0
-		};
 
-		// add vertex makes sure point is on unit sphere
-		var i = addVertex(middle); 
+		// addPoint makes sure point is on unit sphere
+		var i = addPoint(
+			(point1.x + point2.x) * 0.5, 
+			(point1.y + point2.y) * 0.5, 
+			(point1.z + point2.z) * 0.5
+		); 
 
 		// store it, return index
-		middle_point_index_cache[key] = i;
+		middle_point_cache[cache_key] = i;
 		return i;
 	}
 
@@ -118,10 +114,26 @@ function create(recursionLevel) {
 			var b = getMiddlePoint(tri.p2, tri.p3);
 			var c = getMiddlePoint(tri.p3, tri.p1);
 
-			new_triangles.push(new Triangle(tri.p1, a, c));
-			new_triangles.push(new Triangle(tri.p2, b, a));
-			new_triangles.push(new Triangle(tri.p3, c, b));
-			new_triangles.push(new Triangle(a, b, c));
+			new_triangles.push({
+				p1: tri.p1,
+				p2: a,
+				p3: c
+			});
+			new_triangles.push({
+				p1: tri.p2,
+				p2: b,
+				p3: a
+			});
+			new_triangles.push({
+				p1: tri.p3,
+				p2: c,
+				p3: b
+			});
+			new_triangles.push({
+				p1: a,
+				p2: b,
+				p3: c
+			});
 		});
 		triangles = new_triangles;
 	}

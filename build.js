@@ -1,4 +1,5 @@
 var fs = require('fs');
+var async = require('async');
 var icosphere = require('./icosphere.js');
 
 config = JSON.parse(fs.readFileSync("config.json", "utf8"));
@@ -29,12 +30,12 @@ function toFileString(globe) {
 		return `{ ${loc.latitude}, ${loc.longitude}, ${loc.elevation} }`
 	}).join(",\n\t"); 
 
-	// var locations_text = globe.points.map(loc => {
-	// 	return `{ ${loc.x}, ${loc.y}, ${loc.z} }`
-	// }).join(",\n\t"); 
-
 	var triangles_text = globe.triangles.map(tri => {
 		return `{ ${tri.p1}, ${tri.p2}, ${tri.p3} }`
+	}).join(",\n\t"); 
+
+	var points_text = globe.points.map(loc => {
+		return `{ ${loc.x}, ${loc.y}, ${loc.z} }`
 	}).join(",\n\t"); 
 
 	return `#include "structs.hpp"
@@ -48,6 +49,10 @@ struct location globe_locations[] = {
 
 struct triangle globe_triangles[] = {
 	${triangles_text}
+};
+
+struct point globe_points[] = {
+	${points_text}
 };`
 }
 
@@ -62,28 +67,34 @@ function dumpToFile(globe) {
 }
 
 
-var globe = icosphere.create(0);
+var globe = icosphere.create(5);
 
 globe.locations = globe.points.map(p => xyzTolatlong(p.x, p.y, p.z));
 
-var lat_longs_string = globe.locations.map(loc => {
-	return `${loc.latitude}, ${loc.longitude}`;
-}).join("|");
+var groups_size = 100;
+var location_groups = []
 
+for (var i = 0; i < globe.locations.length; i += groups_size) {
+	location_groups.push(globe.locations.slice(i, i + groups_size));
+}
 
-// Geocode an address.
-googleMapsClient.elevation({
-	locations: lat_longs_string
-}, function(err, response) {
-	if (err) {
-		console.log(`Google Maps API Error: \n${err}`);
-	}
-	else {
+async.mapSeries(location_groups, function(locations, callback) {
+	googleMapsClient.elevation({
+		locations: locations.map(loc => `${loc.latitude}, ${loc.longitude}`).join("|")
+	}, function(err, response) {
+		if (err) return callback(err);
 		response.json.results.forEach(loc => {
 			globe.locations.find(l => {
 				return aboutEqual(l.latitude, loc.location.lat, 0.001) && aboutEqual(l.longitude, loc.location.lng, 0.0001);
 			}).elevation = loc.elevation
 		});
+		callback(null, response.json);
+	});
+}, function(err, results) {
+	if (err) {
+		console.log(`Google Maps API Error: \n${err}`);
+	}
+	else {
 		dumpToFile(globe);
 	}
 });
