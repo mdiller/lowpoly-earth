@@ -1,0 +1,17 @@
+
+void
+InitGraphics( )
+{
+	// request the display modes:
+	// ask for red-green-blue-alpha color, double-buffering, and z-buffering:
+
+	glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH );
+
+	// set the initial window configuration:
+
+	glutInitWindowPosition( 0, 0 );
+	glutInitWindowSize( INIT_WINDOW_SIZE, INIT_WINDOW_SIZE );
+
+	// open the window and set its title:
+
+	MainWindow = glutCreateWindow( WINDOWTITLE );

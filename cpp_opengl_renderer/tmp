@@ -1,0 +1,22 @@
+
+void
+Display( )
+{
+	if( DebugOn != 0 )
+	{
+		fprintf( stderr, "Display\n" );
+	}
+
+
+	// set which window we want to do the graphics into:
+
+	glutSetWindow( MainWindow );
+
+
+	// erase the background:
+
+	glDrawBuffer( GL_BACK );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glEnable( GL_DEPTH_TEST );
+
+
