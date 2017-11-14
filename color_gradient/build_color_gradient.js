@@ -9,8 +9,8 @@ var fs = require("fs");
 
 config = {
 	filename: "color_gradient.c3g",
-	min: -10000,
-	max: 10000,
+	min: -11000,
+	max: 8500,
 	outfile: "color_gradient.json"
 }
 
