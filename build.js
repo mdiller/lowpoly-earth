@@ -32,7 +32,7 @@ function dumpToFile(globe) {
 }
 
 
-var globe = icosphere.create(5);
+var globe = icosphere.create(6);
 
 globe.points = globe.points.map(p => xyzAddlatlong(p.x, p.y, p.z));
 
