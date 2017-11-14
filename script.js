@@ -7,6 +7,16 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+// Ocean
+var oceanGeometry = new THREE.SphereGeometry(1, 128, 96);
+var oceanMaterial = new THREE.MeshBasicMaterial({ 
+	color: 0x0000ff, 
+	transparent: true,
+	opacity: 0.5
+});
+var ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
+scene.add(ocean);
+
 
 // Lighting
 light = new THREE.AmbientLight( 0x404040 );
