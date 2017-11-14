@@ -9,11 +9,10 @@ document.body.appendChild( renderer.domElement );
 
 
 // Lighting
-var light = new THREE.PointLight(0xffffff);
-light.position.set(-1,2,1);
-scene.add(light);
 light = new THREE.AmbientLight( 0x404040 );
 scene.add( light );
+var light = new THREE.PointLight(0xffffff);
+scene.add(light);
 
 
 var geometry = new THREE.Geometry(); 
@@ -22,6 +21,7 @@ var geometry = new THREE.Geometry();
 var camera_distance = 2.5;
 
 camera.position.z = camera_distance;
+light.position.z = camera_distance;
 
 var controls = {
 	x: null,
@@ -56,6 +56,8 @@ var animate = function () {
 		camera.position.y = radius * Math.sin(controls.actual_phi * Math.PI / 360 );
 		camera.position.z = radius * Math.cos(controls.actual_theta * Math.PI / 360 )
 							* Math.cos(controls.actual_phi * Math.PI / 360 );
+
+		light.position.set(camera.position.x, camera.position.y, camera.position.z);
 		camera.lookAt(new THREE.Vector3(0, 0, 0));
 		camera.updateMatrix();
 	}
