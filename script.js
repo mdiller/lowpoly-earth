@@ -23,6 +23,12 @@ var camera_distance = 2.5;
 camera.position.z = camera_distance;
 light.position.z = camera_distance;
 
+// These shall be filled in the ajax call at the end of the file
+var json_data = {
+	globe: null,
+	color_gradient: null
+}
+
 var controls = {
 	x: null,
 	y: null,
@@ -91,6 +97,40 @@ document.addEventListener( 'mousedown', event => {
 	}
 }, false );
 
+// Gets a color based on an elevation
+// Uses a color gradient
+function elevationColor(elevation) {
+	var color_gradient = json_data.color_gradient;
+	var i = 0;
+	while (elevation > color_gradient[i].elevation && i < color_gradient.length) {
+		i++;
+	}
+	if (i == 0) {
+		return color_gradient[0].color;
+	}
+	if (i == color_gradient.length) {
+		return color_gradient[color_gradient.length - 1].color;
+	}
+
+	var min = color_gradient[i - 1];
+	var max = color_gradient[i];
+
+	if (max.elevation - min.elevation == 0) {
+		return min.color;
+	}
+	var percent = (elevation - min.elevation) / (max.elevation - min.elevation);
+	return {
+		r: min.color.r + ((max.color.r - min.color.r) * percent),
+		g: min.color.g + ((max.color.g - min.color.g) * percent),
+		b: min.color.b + ((max.color.b - min.color.b) * percent),
+	};
+}
+
+function elevationColorThree(elevation) {
+	var c = elevationColor(elevation);
+	return new THREE.Color(c.r / 255.0, c.g / 255.0, c.b / 255.0);
+}
+
 // Globe stuff
 
 function pointToVector(point) {
@@ -102,16 +142,39 @@ function pointToVector(point) {
 		(radius + elevation) * point.z);
 }
 
-function addGlobe(globe) {
-	globe.points.map(pointToVector).forEach(vector => {
-		geometry.vertices.push(vector);
+function triangleToFace(triangle) {
+	var globe = json_data.globe;
+	var face = new THREE.Face3(triangle.p1, triangle.p2, triangle.p3);
+
+	var points = [
+		globe.points[triangle.p1],
+		globe.points[triangle.p2],
+		globe.points[triangle.p3]
+	];
+	var elevation = Math.max(...points.map(point => point.elevation));
+	var color = elevationColorThree(elevation);
+
+	// Initial style will have one color per face
+	face.vertexColors[0] = color;
+	face.vertexColors[1] = color;
+	face.vertexColors[2] = color;
+
+	return face;
+}
+
+function addGlobe() {
+	var globe = json_data.globe;
+	globe.points.forEach(point => {
+		geometry.vertices.push(pointToVector(point));
 	});
 
 	globe.triangles.forEach(triangle => {
-		geometry.faces.push(new THREE.Face3(triangle.p1, triangle.p2, triangle.p3));
+		geometry.faces.push(triangleToFace(triangle));
 	});
 
-	var material = new THREE.MeshPhongMaterial({color: 0x55B663});
+	var material = new THREE.MeshPhongMaterial({
+		vertexColors: THREE.VertexColors
+	});
 
 	var globe_object = new THREE.Mesh(geometry, material);
 	scene.add(globe_object);
@@ -123,11 +186,13 @@ function addGlobe(globe) {
 }
 
 
+$.when(
+	$.getJSON("./globe.json", function(globe) {
+		json_data.globe = globe;
+	}),
 
+	$.getJSON("./color_gradient/color_gradient.json", function(color_gradient) {
+		json_data.color_gradient = color_gradient;
+	}),
 
-
-$.ajax({
-	dataType: "json",
-	url: "./globe.json",
-	success: addGlobe
-});
+).then(addGlobe);
