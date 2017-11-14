@@ -18,15 +18,78 @@ scene.add( light );
 
 var geometry = new THREE.Geometry(); 
 
-camera.position.z = 2.5;
+
+var camera_distance = 2.5;
+
+camera.position.z = camera_distance;
+
+var controls = {
+	x: null,
+	y: null,
+	theta: 0,
+	phi: 0,
+	actual_theta: 0,
+	actual_phi: 0
+}
 
 var animate = function () {
 	requestAnimationFrame( animate );
 
+	// Doing this here so we can add acceleration later
+	var radius = 2.5;
+	var smoothing = 0.2;
+	var threshold = 0.05;
+
+	if (controls.actual_theta != controls.theta || controls.actual_phi != controls.phi) {
+		controls.actual_theta += ((controls.theta - controls.actual_theta) * smoothing);
+		controls.actual_phi += ((controls.phi - controls.actual_phi) * smoothing);
+
+		if (controls.actual_phi < controls.phi + threshold && controls.actual_phi > controls.phi - threshold) {
+			controls.actual_phi = controls.phi;
+		}
+		if (controls.actual_theta < controls.theta + threshold && controls.actual_theta > controls.theta - threshold) {
+			controls.actual_theta = controls.theta;
+		}
+
+		camera.position.x = radius * Math.sin(controls.actual_theta * Math.PI / 360 )
+							* Math.cos(controls.actual_phi * Math.PI / 360 );
+		camera.position.y = radius * Math.sin(controls.actual_phi * Math.PI / 360 );
+		camera.position.z = radius * Math.cos(controls.actual_theta * Math.PI / 360 )
+							* Math.cos(controls.actual_phi * Math.PI / 360 );
+		camera.lookAt(new THREE.Vector3(0, 0, 0));
+		camera.updateMatrix();
+	}
+
 	renderer.render(scene, camera);
 };
 
+animate();
 
+
+document.addEventListener( 'mousemove', event => {
+	event.preventDefault();
+
+	if (event.buttons & 1) {
+		controls.theta += -((event.clientX - controls.x) * 0.75 );
+		controls.phi += ((event.clientY - controls.y) * 0.75 );
+
+
+		controls.phi = Math.min( 180, Math.max( -180, controls.phi ) );		
+	}
+
+	controls.x = event.clientX;
+	controls.y = event.clientY;
+}, false);
+
+
+document.addEventListener( 'mousedown', event => {
+	if (event.button == 0) {
+		controls.x = event.clientX;
+		controls.y = event.clientY;
+	}
+}, false );
+
+// Globe stuff
 
 function pointToVector(point) {
 	var radius = 1;
