@@ -1,14 +1,13 @@
-
-
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+var canvasElement = document.getElementById("drawing-canvas");
+
+var renderer = new THREE.WebGLRenderer({ canvas: canvasElement });
+resizeCanvas();
 
 // Ocean
-var oceanGeometry = new THREE.IcosahedronBufferGeometry(1, 7);
+var oceanGeometry = new THREE.IcosahedronBufferGeometry(1, 6);
 var oceanMaterial = new THREE.MeshBasicMaterial({ 
 	color: 0x0000ff, 
 	transparent: true,
@@ -17,9 +16,8 @@ var oceanMaterial = new THREE.MeshBasicMaterial({
 var ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
 scene.add(ocean);
 
-
 // Lighting
-light = new THREE.AmbientLight( 0x404040 );
+light = new THREE.AmbientLight(0x404040);
 scene.add( light );
 var light = new THREE.PointLight(0xffffff);
 scene.add(light);
@@ -46,8 +44,8 @@ var controls = {
 	phi: 0,
 	actual_theta: 0,
 	actual_phi: 0,
-	zoom: 2.5,
-	actual_zoom: 2.5
+	zoom: camera_distance,
+	actual_zoom: camera_distance
 }
 
 function degreesToPosition(theta, phi, radius) {
@@ -120,12 +118,9 @@ var animate = function () {
 animate();
 
 
-var drawingCanvas = document.getElementsByTagName("canvas")[0];
-
-
 function pressMove(x, y) {
 	// drawing is based on the height, so this scales with size of drawing
-	var moveScaling = 500.0 / drawingCanvas.height;
+	var moveScaling = 500.0 / canvasElement.height;
 
 	controls.theta += -((x - controls.x) * moveScaling);
 	controls.phi += ((y - controls.y) * moveScaling);
@@ -147,14 +142,14 @@ function zoomChange(delta) {
 	controls.zoom = Math.max(0.1, controls.zoom);
 }
 
-drawingCanvas.addEventListener('mousedown', event => {
+canvasElement.addEventListener('mousedown', event => {
 	event.preventDefault();
 	if (event.button == 0) {
 		pressDown(event.clientX, event.clientY);
 	}
 }, false);
 
-drawingCanvas.addEventListener('mousemove', event => {
+canvasElement.addEventListener('mousemove', event => {
 	event.preventDefault();
 
 	if (event.buttons & 1) {
@@ -163,7 +158,7 @@ drawingCanvas.addEventListener('mousemove', event => {
 	pressDown(event.clientX, event.clientY);
 }, false);
 
-drawingCanvas.addEventListener("touchstart", event => {
+canvasElement.addEventListener("touchstart", event => {
 	event.preventDefault();
 
 	if (event.touches) {
@@ -171,7 +166,7 @@ drawingCanvas.addEventListener("touchstart", event => {
 	}
 });
 
-drawingCanvas.addEventListener("touchmove", event => {
+canvasElement.addEventListener("touchmove", event => {
 	event.preventDefault();
 	
 	if (event.touches) {
@@ -180,10 +175,27 @@ drawingCanvas.addEventListener("touchmove", event => {
 	}
 });
 
-drawingCanvas.addEventListener("wheel", event => {
+canvasElement.addEventListener("wheel", event => {
 	event.preventDefault();
 	zoomChange(event.deltaY);
 });
+
+
+function resizeCanvas() {
+	var settings_size = 400;
+	var cutoff_size = 800;
+
+	var width = window.innerWidth;
+	var height = window.innerHeight;
+	if (width > cutoff_size) {
+		width -= settings_size;
+	}
+
+	camera.aspect = width / height;
+	camera.updateProjectionMatrix();
+	renderer.setSize(width, height);
+}
+window.addEventListener('resize', resizeCanvas, false);
 
 // Gets a color based on an elevation
 // Uses a color gradient
