@@ -45,16 +45,31 @@ var controls = {
 	theta: 0,
 	phi: 0,
 	actual_theta: 0,
-	actual_phi: 0
+	actual_phi: 0,
+	zoom: 2.5,
+	actual_zoom: 2.5
 }
 
 var animate = function () {
 	requestAnimationFrame( animate );
 
-	// Doing this here so we can add acceleration later
-	var radius = 2.5;
 	var smoothing = 0.2;
 	var threshold = 0.05;
+
+	var zoomSmoothing = 0.075;
+	var zoomThreshold = 0.0005;
+
+	var camera_changed = false;
+
+	if (controls.zoom != controls.actual_zoom) {
+		controls.actual_zoom += ((controls.zoom - controls.actual_zoom) * zoomSmoothing);
+
+		if (controls.actual_zoom < controls.zoom + zoomThreshold && controls.actual_zoom > controls.zoom - zoomThreshold) {
+			controls.actual_zoom = controls.zoom;
+		}
+
+		camera_changed = true;
+	}
 
 	if (controls.actual_theta != controls.theta || controls.actual_phi != controls.phi) {
 		controls.actual_theta += ((controls.theta - controls.actual_theta) * smoothing);
@@ -66,11 +81,14 @@ var animate = function () {
 		if (controls.actual_theta < controls.theta + threshold && controls.actual_theta > controls.theta - threshold) {
 			controls.actual_theta = controls.theta;
 		}
+		camera_changed = true;
+	}
 
-		camera.position.x = radius * Math.sin(controls.actual_theta * Math.PI / 360 )
+	if (camera_changed) {
+		camera.position.x = controls.actual_zoom * Math.sin(controls.actual_theta * Math.PI / 360 )
 							* Math.cos(controls.actual_phi * Math.PI / 360 );
-		camera.position.y = radius * Math.sin(controls.actual_phi * Math.PI / 360 );
-		camera.position.z = radius * Math.cos(controls.actual_theta * Math.PI / 360 )
+		camera.position.y = controls.actual_zoom * Math.sin(controls.actual_phi * Math.PI / 360 );
+		camera.position.z = controls.actual_zoom * Math.cos(controls.actual_theta * Math.PI / 360 )
 							* Math.cos(controls.actual_phi * Math.PI / 360 );
 
 		light.position.set(camera.position.x, camera.position.y, camera.position.z);
@@ -94,13 +112,21 @@ function pressMove(x, y) {
 	controls.theta += -((x - controls.x) * moveScaling);
 	controls.phi += ((y - controls.y) * moveScaling);
 
-	controls.phi = Math.min( 180, Math.max( -180, controls.phi ) );	
+	controls.phi = Math.min(180, Math.max(-180, controls.phi));	
 }
 
 
 function pressDown(x, y) {
 	controls.x = x;
 	controls.y = y;
+}
+
+function zoomChange(delta) {
+	var zoomScaling = 0.001;
+
+	controls.zoom += delta * zoomScaling;
+
+	controls.zoom = Math.max(0.1, controls.zoom);
 }
 
 drawingCanvas.addEventListener('mousedown', event => {
@@ -136,8 +162,10 @@ drawingCanvas.addEventListener("touchmove", event => {
 	}
 });
 
-// var el = document.getElementsByTagName("canvas")[0];
-// el.addEventListener("touchstart", handleStart);
+drawingCanvas.addEventListener("wheel", event => {
+	event.preventDefault();
+	zoomChange(event.deltaY);
+});
 
 // Gets a color based on an elevation
 // Uses a color gradient
