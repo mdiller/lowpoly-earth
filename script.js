@@ -84,28 +84,54 @@ var animate = function () {
 animate();
 
 
-document.addEventListener( 'mousemove', event => {
+function pressMove(x, y) {
+	console.log(`x: ${x}, y: ${y}`);
+	controls.theta += -((x - controls.x) * 0.75 );
+	controls.phi += ((y - controls.y) * 0.75 );
+
+	controls.phi = Math.min( 180, Math.max( -180, controls.phi ) );	
+}
+
+
+function pressDown(x, y) {
+	controls.x = x;
+	controls.y = y;
+}
+
+
+var drawingCanvas = document.getElementsByTagName("canvas")[0];
+
+drawingCanvas.addEventListener('mousedown', event => {
+	event.preventDefault();
+	if (event.button == 0) {
+		pressDown(event.clientX, event.clientY);
+	}
+}, false);
+
+drawingCanvas.addEventListener('mousemove', event => {
 	event.preventDefault();
 
 	if (event.buttons & 1) {
-		controls.theta += -((event.clientX - controls.x) * 0.75 );
-		controls.phi += ((event.clientY - controls.y) * 0.75 );
-
-
-		controls.phi = Math.min( 180, Math.max( -180, controls.phi ) );		
-	}
-
-	controls.x = event.clientX;
-	controls.y = event.clientY;
+		pressMove(event.clientX, event.clientY);
+	}	
+	pressDown(event.clientX, event.clientY);
 }, false);
 
-
-document.addEventListener( 'mousedown', event => {
-	if (event.button == 0) {
-		controls.x = event.clientX;
-		controls.y = event.clientY;
+drawingCanvas.addEventListener("touchstart", event => {
+	if (event.touches) {
+		pressDown(event.touches[0].clientX, event.touches[0].clientY);
 	}
-}, false );
+});
+
+drawingCanvas.addEventListener("touchmove", event => {
+	if (event.touches) {
+		pressMove(event.touches[0].clientX, event.touches[0].clientY);
+		pressDown(event.touches[0].clientX, event.touches[0].clientY);
+	}
+});
+
+// var el = document.getElementsByTagName("canvas")[0];
+// el.addEventListener("touchstart", handleStart);
 
 // Gets a color based on an elevation
 // Uses a color gradient
