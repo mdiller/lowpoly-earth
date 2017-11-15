@@ -8,7 +8,7 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
 // Ocean
-var oceanGeometry = new THREE.SphereGeometry(1, 128, 96);
+var oceanGeometry = new THREE.IcosahedronBufferGeometry(1, 7);
 var oceanMaterial = new THREE.MeshBasicMaterial({ 
 	color: 0x0000ff, 
 	transparent: true,
