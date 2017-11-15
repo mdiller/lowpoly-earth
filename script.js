@@ -50,6 +50,14 @@ var controls = {
 	actual_zoom: 2.5
 }
 
+function degreesToPosition(theta, phi, radius) {
+	return [
+		radius * Math.sin(theta * Math.PI / 360 ) * Math.cos(phi * Math.PI / 360 ),
+		radius * Math.sin(phi * Math.PI / 360 ),
+		radius * Math.cos(theta * Math.PI / 360 ) * Math.cos(phi * Math.PI / 360 )
+	];
+}
+
 var animate = function () {
 	requestAnimationFrame( animate );
 
@@ -85,13 +93,23 @@ var animate = function () {
 	}
 
 	if (camera_changed) {
-		camera.position.x = controls.actual_zoom * Math.sin(controls.actual_theta * Math.PI / 360 )
-							* Math.cos(controls.actual_phi * Math.PI / 360 );
-		camera.position.y = controls.actual_zoom * Math.sin(controls.actual_phi * Math.PI / 360 );
-		camera.position.z = controls.actual_zoom * Math.cos(controls.actual_theta * Math.PI / 360 )
-							* Math.cos(controls.actual_phi * Math.PI / 360 );
+		camera.position.set(...degreesToPosition(
+			controls.actual_theta, 
+			controls.actual_phi, 
+			controls.actual_zoom
+		));
 
-		light.position.set(camera.position.x, camera.position.y, camera.position.z);
+		
+		// light.position.set(...degreesToPosition(
+		// 	45 + controls.actual_theta, 
+		// 	45 + controls.actual_phi, 
+		// 	2.5
+		// ));
+		light.position.set(
+			camera.position.x,
+			camera.position.y,
+			camera.position.z
+		);
 		camera.lookAt(new THREE.Vector3(0, 0, 0));
 		camera.updateMatrix();
 	}
