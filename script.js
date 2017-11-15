@@ -84,10 +84,15 @@ var animate = function () {
 animate();
 
 
+var drawingCanvas = document.getElementsByTagName("canvas")[0];
+
+
 function pressMove(x, y) {
-	console.log(`x: ${x}, y: ${y}`);
-	controls.theta += -((x - controls.x) * 0.75 );
-	controls.phi += ((y - controls.y) * 0.75 );
+	// drawing is based on the height, so this scales with size of drawing
+	var moveScaling = 500.0 / drawingCanvas.height;
+
+	controls.theta += -((x - controls.x) * moveScaling);
+	controls.phi += ((y - controls.y) * moveScaling);
 
 	controls.phi = Math.min( 180, Math.max( -180, controls.phi ) );	
 }
@@ -97,9 +102,6 @@ function pressDown(x, y) {
 	controls.x = x;
 	controls.y = y;
 }
-
-
-var drawingCanvas = document.getElementsByTagName("canvas")[0];
 
 drawingCanvas.addEventListener('mousedown', event => {
 	event.preventDefault();
@@ -118,12 +120,16 @@ drawingCanvas.addEventListener('mousemove', event => {
 }, false);
 
 drawingCanvas.addEventListener("touchstart", event => {
+	event.preventDefault();
+
 	if (event.touches) {
 		pressDown(event.touches[0].clientX, event.touches[0].clientY);
 	}
 });
 
 drawingCanvas.addEventListener("touchmove", event => {
+	event.preventDefault();
+	
 	if (event.touches) {
 		pressMove(event.touches[0].clientX, event.touches[0].clientY);
 		pressDown(event.touches[0].clientX, event.touches[0].clientY);
