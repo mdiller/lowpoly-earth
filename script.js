@@ -3,6 +3,7 @@ var scene = new THREE.Scene();
 var canvasElement = document.getElementById("drawing-canvas");
 
 var renderer = new THREE.WebGLRenderer({ canvas: canvasElement });
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 resizeCanvas();
 
 //// Ocean
@@ -31,7 +32,6 @@ var geometry = new THREE.Geometry();
 
 var camera_distance = 2.5;
 
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = camera_distance;
 light.position.z = camera_distance;
 
