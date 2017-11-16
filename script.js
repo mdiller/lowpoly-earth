@@ -187,9 +187,9 @@ function resizeCanvas() {
 
 	var width = window.innerWidth;
 	var height = window.innerHeight;
-	if (width > cutoff_size) {
-		width -= settings_size;
-	}
+	// if (width > cutoff_size) {
+	// 	width -= settings_size;
+	// }
 
 	camera.aspect = width / height;
 	camera.updateProjectionMatrix();
