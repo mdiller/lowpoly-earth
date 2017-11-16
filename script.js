@@ -1,12 +1,11 @@
 var scene = new THREE.Scene();
 
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 var canvasElement = document.getElementById("drawing-canvas");
 
 var renderer = new THREE.WebGLRenderer({ canvas: canvasElement });
 resizeCanvas();
 
-// Ocean
+//// Ocean
 var oceanGeometry = new THREE.IcosahedronBufferGeometry(1, 6);
 var oceanMaterial = new THREE.MeshBasicMaterial({ 
 	color: 0x0000ff, 
@@ -16,9 +15,13 @@ var oceanMaterial = new THREE.MeshBasicMaterial({
 var ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
 scene.add(ocean);
 
-// Lighting
+//// Lighting
+
+// Ambient light
 light = new THREE.AmbientLight(0x404040);
 scene.add( light );
+
+// Follows the camera
 var light = new THREE.PointLight(0xffffff);
 scene.add(light);
 
@@ -28,6 +31,7 @@ var geometry = new THREE.Geometry();
 
 var camera_distance = 2.5;
 
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = camera_distance;
 light.position.z = camera_distance;
 
@@ -37,6 +41,7 @@ var json_data = {
 	color_gradient: null
 }
 
+// These shall be used to hold information for controlling the camera position
 var controls = {
 	x: null,
 	y: null,
@@ -48,6 +53,7 @@ var controls = {
 	actual_zoom: camera_distance
 }
 
+// Finds an x, y, z position on a globe given a theta, phi, and radius
 function degreesToPosition(theta, phi, radius) {
 	return [
 		radius * Math.sin(theta * Math.PI / 360 ) * Math.cos(phi * Math.PI / 360 ),
@@ -56,6 +62,10 @@ function degreesToPosition(theta, phi, radius) {
 	];
 }
 
+//// Controls / Events
+
+
+// The main function of animate at this point is to control the camera position
 var animate = function () {
 	requestAnimationFrame( animate );
 
@@ -117,7 +127,6 @@ var animate = function () {
 
 animate();
 
-
 function pressMove(x, y) {
 	// drawing is based on the height, so this scales with size of drawing
 	var moveScaling = 500.0 / canvasElement.height;
@@ -127,7 +136,6 @@ function pressMove(x, y) {
 
 	controls.phi = Math.min(180, Math.max(-180, controls.phi));	
 }
-
 
 function pressDown(x, y) {
 	controls.x = x;
@@ -180,13 +188,15 @@ canvasElement.addEventListener("wheel", event => {
 	zoomChange(event.deltaY);
 });
 
-
+// Resizes the canvas element and the renderer when the screen changes
+// I've added support for a settings sidebar, but we are currently not using it, so I've commented out the functional part of it
 function resizeCanvas() {
 	var settings_size = 400;
 	var cutoff_size = 800;
 
 	var width = window.innerWidth;
 	var height = window.innerHeight;
+
 	// if (width > cutoff_size) {
 	// 	width -= settings_size;
 	// }
@@ -197,8 +207,12 @@ function resizeCanvas() {
 }
 window.addEventListener('resize', resizeCanvas, false);
 
+
+//// Globe stuff
+
+
 // Gets a color based on an elevation
-// Uses a color gradient
+// Uses a color gradient. See color_gradient/build_color_gradiant.js for more info
 function elevationColor(elevation) {
 	var color_gradient = json_data.color_gradient;
 	var i = 0;
@@ -226,13 +240,14 @@ function elevationColor(elevation) {
 	};
 }
 
+// Converts a js object with keys r, g, and b into a THREE.Color object
 function elevationColorThree(elevation) {
 	var c = elevationColor(elevation);
 	return new THREE.Color(c.r / 255.0, c.g / 255.0, c.b / 255.0);
 }
 
-// Globe stuff
-
+// Converts a point from globe.json into a THREE.Vector3
+// Takes elevation into account, adjusting for what we've configured
 function pointToVector(point) {
 	var radius = 1;
 	var elevation = point.elevation / 50000;
@@ -242,6 +257,7 @@ function pointToVector(point) {
 		(radius + elevation) * point.z);
 }
 
+// Converts a triangle from globe.json into a THREE.Vector3
 function triangleToFace(triangle) {
 	var globe = json_data.globe;
 	var face = new THREE.Face3(triangle.p1, triangle.p2, triangle.p3);
@@ -262,6 +278,7 @@ function triangleToFace(triangle) {
 	return face;
 }
 
+// Creates and adds the globe to the scene
 function addGlobe() {
 	var globe = json_data.globe;
 	globe.points.forEach(point => {
@@ -285,7 +302,7 @@ function addGlobe() {
 	animate();
 }
 
-
+// Load our json data, and add the globe
 $.when(
 	$.getJSON("./globe.json", function(globe) {
 		json_data.globe = globe;
