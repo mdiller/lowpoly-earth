@@ -50,7 +50,8 @@ var controls = {
 	actual_theta: 0,
 	actual_phi: 0,
 	zoom: camera_distance,
-	actual_zoom: camera_distance
+	actual_zoom: camera_distance,
+	touch_delta: 0
 }
 
 // Finds an x, y, z position on a globe given a theta, phi, and radius
@@ -150,6 +151,20 @@ function zoomChange(delta) {
 	controls.zoom = Math.max(0.1, controls.zoom);
 }
 
+// Called on touchstart or touchend if there are 2 or more touches
+function touchesUpdate(x1, y1, x2, y2) {
+	controls.touch_delta = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+// Called on touchmove if there are 2 or more touches
+function touchesMove(x1, y1, x2, y2) {
+	var touchZoomScaling = 3;
+
+	var new_delta = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
+	zoomChange((controls.touch_delta - new_delta) * touchZoomScaling);
+}
+
 canvasElement.addEventListener('mousedown', event => {
 	event.preventDefault();
 	if (event.button == 0) {
@@ -170,7 +185,35 @@ canvasElement.addEventListener("touchstart", event => {
 	event.preventDefault();
 
 	if (event.touches) {
-		pressDown(event.touches[0].clientX, event.touches[0].clientY);
+		if (event.touches.length > 1) {
+			touchesUpdate(
+				event.touches[0].clientX,
+				event.touches[0].clientY,
+				event.touches[1].clientX,
+				event.touches[1].clientY
+			);
+		}
+		else {
+			pressDown(event.touches[0].clientX, event.touches[0].clientY);
+		}
+	}
+});
+
+canvasElement.addEventListener("touchend", event => {
+	event.preventDefault();
+
+	if (event.touches) {
+		if (event.touches.length > 1) {
+			touchesUpdate(
+				event.touches[0].clientX,
+				event.touches[0].clientY,
+				event.touches[1].clientX,
+				event.touches[1].clientY
+			);
+		}
+		else {
+			pressDown(event.touches[0].clientX, event.touches[0].clientY);
+		}
 	}
 });
 
@@ -178,8 +221,24 @@ canvasElement.addEventListener("touchmove", event => {
 	event.preventDefault();
 	
 	if (event.touches) {
-		pressMove(event.touches[0].clientX, event.touches[0].clientY);
-		pressDown(event.touches[0].clientX, event.touches[0].clientY);
+		if (event.touches.length > 1) {
+			touchesMove(
+				event.touches[0].clientX,
+				event.touches[0].clientY,
+				event.touches[1].clientX,
+				event.touches[1].clientY
+			);
+			touchesUpdate(
+				event.touches[0].clientX,
+				event.touches[0].clientY,
+				event.touches[1].clientX,
+				event.touches[1].clientY
+			);
+		}
+		else {
+			pressMove(event.touches[0].clientX, event.touches[0].clientY);
+			pressDown(event.touches[0].clientX, event.touches[0].clientY);
+		}
 	}
 });
 
