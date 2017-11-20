@@ -203,7 +203,7 @@ canvasElement.addEventListener("touchend", event => {
 	event.preventDefault();
 
 	if (event.touches) {
-		if (event.touches.length > 1) {
+		if (event.touches.length > 1 && event.touches[1]) {
 			touchesUpdate(
 				event.touches[0].clientX,
 				event.touches[0].clientY,
