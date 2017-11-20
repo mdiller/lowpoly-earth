@@ -1,3 +1,7 @@
+console.log(`Hello! Welcome to the console of my LowPoly Globe!
+I've set this up to provide some timing information about my application`);
+console.time("entire initialization");
+
 var scene = new THREE.Scene();
 
 var canvasElement = document.getElementById("drawing-canvas");
@@ -340,34 +344,53 @@ function triangleToFace(triangle) {
 // Creates and adds the globe to the scene
 function addGlobe() {
 	var globe = json_data.globe;
+	console.time('adding vertices');
 	globe.points.forEach(point => {
 		geometry.vertices.push(pointToVector(point));
 	});
+	console.timeEnd('adding vertices');
 
+	console.time('adding triangles');
 	globe.triangles.forEach(triangle => {
 		geometry.faces.push(triangleToFace(triangle));
 	});
+	console.timeEnd('adding triangles');
 
 	var material = new THREE.MeshPhongMaterial({
 		vertexColors: THREE.VertexColors
 	});
 
+
 	var globe_object = new THREE.Mesh(geometry, material);
 	scene.add(globe_object);
 
+
+	console.time('computing face normals');
 	geometry.computeFaceNormals();
+	console.timeEnd('computing face normals');
 	// geometry.computeVertexNormals();
 
+	console.time('animating');
 	animate();
+	console.timeEnd('animating');
+
+	console.timeEnd('entire globe initialization');
+	console.timeEnd("entire initialization");
 }
 
+
+console.time('entire globe initialization');
+console.time('loading globe.json');
+console.time('loading color_gradient.json');
 // Load our json data, and add the globe
 $.when(
 	$.getJSON("./globe.json", function(globe) {
+		console.timeEnd('loading globe.json');
 		json_data.globe = globe;
 	}),
 
 	$.getJSON("./color_gradient/color_gradient.json", function(color_gradient) {
+		console.timeEnd('loading color_gradient.json');
 		json_data.color_gradient = color_gradient;
 	}),
 
