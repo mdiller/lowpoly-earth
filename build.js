@@ -12,6 +12,13 @@ function aboutEqual(a, b, error) {
 	return a > (b - error) && a < (b + error);
 }
 
+function fixPrecision(x){
+	return x.toFixed(6).replace(/\.?0*$/, "");
+}
+
+function fixPrecisionNum(x){
+	return parseFloat(fixPrecision(x));
+}
 
 function xyzAddlatlong(x, y, z) {
 	var longitude = -(Math.atan2( -z, -x )) - Math.PI / 2;
@@ -19,16 +26,16 @@ function xyzAddlatlong(x, y, z) {
 		longitude += Math.PI * 2;
 	}
 	return {
-		x: x,
-		y: y,
-		z: z,
-		latitude: Math.asin(y) * (180 / Math.PI),
-		longitude: longitude * (180 / Math.PI)
+		x: fixPrecisionNum(x),
+		y: fixPrecisionNum(y),
+		z: fixPrecisionNum(z),
+		latitude: fixPrecisionNum(Math.asin(y) * (180 / Math.PI)),
+		longitude: fixPrecisionNum(longitude * (180 / Math.PI))
 	};
 }
 
 function dumpToFile(globe) {
-	fs.writeFileSync('./globe.json', JSON.stringify(globe, null, "\t") , 'utf-8'); 
+	fs.writeFileSync('./globe.json', JSON.stringify(globe) , 'utf-8'); 
 }
 
 
@@ -45,7 +52,7 @@ for (var i = 0; i < globe.points.length; i += groups_size) {
 
 async.each(location_groups, function(locations, callback) {
 	googleMapsClient.elevation({
-		locations: locations.map(loc => `${loc.latitude}, ${loc.longitude}`).join("|")
+		locations: locations.map(loc => `${fixPrecision(loc.latitude)}, ${fixPrecision(loc.longitude)}`).join("|")
 	}, function(err, response) {
 		if (err) return callback(err);
 		response.json.results.forEach(loc => {
