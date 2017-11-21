@@ -34,8 +34,55 @@ function xyzAddlatlong(x, y, z) {
 	};
 }
 
+function globeToBytes(globe) {
+	var floats_per_point = 6;
+	var ints_per_triangle = 3;
+
+	var points = globe.points;
+	var triangles = globe.triangles;
+	var num_points = points.length;
+	var num_triangles = triangles.length;
+
+	// This will hold all the buffers we will concat together
+	var buffers = [];
+
+	// Attach a header with the text GLOBEDAT, followed by:
+	// num_points (int32)
+	// num_triangles (int32)
+	buffers.push(Buffer.from("GLOBEDAT", "utf8"));
+	var header_vars = new Int32Array(2);
+	header_vars[0] = num_points;
+	header_vars[1] = num_triangles;
+	buffers.push(new Buffer(header_vars.buffer));
+
+	// Add all of the points
+	var point_floats = new Float32Array(num_points * floats_per_point);
+	for (var i = 0; i < num_points; i++) {
+		var j = i * floats_per_point;
+		point_floats[j] = points[i].x;
+		point_floats[j + 1] = points[i].y;
+		point_floats[j + 2] = points[i].z;
+		point_floats[j + 3] = points[i].latitude;
+		point_floats[j + 4] = points[i].longitude;
+		point_floats[j + 5] = points[i].elevation;
+	}
+	buffers.push(new Buffer(point_floats.buffer));
+
+	// Add all of the triangles
+	var triangle_ints = new Uint16Array(num_triangles * ints_per_triangle);
+	for (var i = 0; i < num_triangles; i++) {
+		var j = i * ints_per_triangle;
+		triangle_ints[j] = triangles[i].p1;
+		triangle_ints[j + 1] = triangles[i].p2;
+		triangle_ints[j + 2] = triangles[i].p3;
+	}
+	buffers.push(new Buffer(triangle_ints.buffer));
+
+	return Buffer.concat(buffers);
+}
+
 function dumpToFile(globe) {
-	fs.writeFileSync('./globe.json', JSON.stringify(globe) , 'utf-8'); 
+	fs.writeFileSync("./globe.dat", globeToBytes(globe)); 
 }
 
 

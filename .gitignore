@@ -30,4 +30,4 @@ cpp_opengl_renderer/Debug/*
 node_modules
 config.json
 notes.md
-globe.json
+globe.dat

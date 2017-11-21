@@ -273,6 +273,52 @@ window.addEventListener('resize', resizeCanvas, false);
 
 //// Globe stuff
 
+function bytesToGlobe(buffer) {
+	var floats_per_point = 6;
+	var ints_per_triangle = 3;
+
+	var globe = {};
+
+	// The header has the text GLOBEDAT, followed by:
+	// num_points (int32)
+	// num_triangles (int32)
+	var offset = 8; // skip the first 8 bytes (GLOBEDAT)
+	var header_info = new Int32Array(buffer, offset, 2);
+	num_points = header_info[0];
+	num_triangles = header_info[1];
+	offset += 2  * header_info.BYTES_PER_ELEMENT; // skip over the rest of the header
+
+	var point_floats = new Float32Array(buffer, offset, num_points * floats_per_point);
+	offset += num_points * floats_per_point * point_floats.BYTES_PER_ELEMENT;
+
+	var triangle_ints = new Uint16Array(buffer, offset, num_triangles * ints_per_triangle);
+
+	globe.points = [];
+	for (var i = 0; i < num_points; i++) {
+		var j = i * floats_per_point;
+		globe.points.push({
+			x: point_floats[j],
+			y: point_floats[j + 1],
+			z: point_floats[j + 2],
+			latitude: point_floats[j + 3],
+			longitude: point_floats[j + 4],
+			elevation: point_floats[j + 5]
+		});
+	}
+
+	globe.triangles = [];
+	for (var i = 0; i < num_triangles; i++) {
+		var j = i * ints_per_triangle;
+		globe.triangles.push({
+			p1: triangle_ints[j],
+			p2: triangle_ints[j + 1],
+			p3: triangle_ints[j + 2],
+		});
+	}
+
+	return globe;
+}
+
 
 // Gets a color based on an elevation
 // Uses a color gradient. See color_gradient/build_color_gradiant.js for more info
@@ -380,18 +426,21 @@ function addGlobe() {
 
 
 console.time('entire globe initialization');
-console.time('loading globe.json');
 console.time('loading color_gradient.json');
-// Load our json data, and add the globe
-$.when(
-	$.getJSON("./globe.json", function(globe) {
-		console.timeEnd('loading globe.json');
-		json_data.globe = globe;
-	}),
+// Load our json data, and then add the globe
+$.getJSON("./color_gradient/color_gradient.json", function(color_gradient) {
+	console.timeEnd('loading color_gradient.json');
+	json_data.color_gradient = color_gradient;
 
-	$.getJSON("./color_gradient/color_gradient.json", function(color_gradient) {
-		console.timeEnd('loading color_gradient.json');
-		json_data.color_gradient = color_gradient;
-	}),
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "./globe.dat", true);
+	xhr.responseType = "arraybuffer";
 
-).then(addGlobe);
+	console.time('loading globe.dat');
+	xhr.onload = function(e) {
+		json_data.globe = bytesToGlobe(xhr.response);
+		console.timeEnd('loading globe.dat');
+		addGlobe();
+	};
+	xhr.send();
+});
