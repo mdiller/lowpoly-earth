@@ -18,9 +18,9 @@ I originally stored the globe data in a json file, but with 6 subdivisions of th
 - 4 bytes (a uint32) to store the number of points
 - 4 bytes (a uint32) to store the number of triangles
 - All of the points data
- - Each field encoded as a single precision float
+	- Each field encoded as a single precision float
 - All of the triangles data
- - Each field encoded as a uint16
+	- Each field encoded as a uint16
 
 ## Colors
 
