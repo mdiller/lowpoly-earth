@@ -258,15 +258,8 @@ canvasElement.addEventListener("wheel", event => {
 // Resizes the canvas element and the renderer when the screen changes
 // I've added support for a settings sidebar, but we are currently not using it, so I've commented out the functional part of it
 function resizeCanvas() {
-	var settings_size = 400;
-	var cutoff_size = 800;
-
 	var width = window.innerWidth;
 	var height = window.innerHeight;
-
-	// if (width > cutoff_size) {
-	// 	width -= settings_size;
-	// }
 
 	camera.aspect = width / height;
 	camera.updateProjectionMatrix();
@@ -410,7 +403,6 @@ function loadGlobe() {
 		vertexColors: THREE.VertexColors
 	});
 
-
 	var globe_object = new THREE.Mesh(geometry, material);
 	scene.add(globe_object);
 
@@ -432,6 +424,16 @@ function loadGlobe() {
 	console.timeEnd("entire initialization");
 }
 
+//// Config Stuff
+var config_cog = document.getElementById("config-cog");
+var config_box = document.getElementById("config-box");
+
+config_cog.addEventListener("click", event => {
+	event.preventDefault();
+	config_cog.classList.toggle("hidden");
+	config_box.classList.toggle("hidden");
+});
+
 // Initializes the config object
 function initConfig(config_data) {
 	config_data.forEach(setting => {
@@ -441,6 +443,8 @@ function initConfig(config_data) {
 	console.log(config);
 	console.log(config_info);
 }
+
+
 
 // Returns a Promise for a http request to get a binary file
 function getBINARY(url) {

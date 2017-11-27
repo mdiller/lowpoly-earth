@@ -7,21 +7,53 @@ canvas {
 	height: 100%;
 }
 
-#settings-box {
-	width: 400px;
+* {
+	font-family: Verdana, Geneva, sans-serif;
+}
+
+a {
+	color: #AAAAAA;
+}
+
+#config-cog {
+	position: fixed;
+	right: 0;
+	top: 0;
+	width: 32px;
+	height: 32px;
+	margin: 16px;
+	cursor: pointer;
+}
+
+#config-box {
+	width: 500px;
 	background-color: #2C2F33;
 	color: #FFFFFF;
 
-	position: absolute;
+	position: fixed;
 	right: 0;
 	top: 0;
 	bottom: 0;
+}
 
+#config-box.hidden {
 	display: none;
 }
 
+#config-header {
+	text-align: center;
+}
+
+h1 {
+	margin-bottom: 0;
+}
+
+#config-content {
+	padding-left: 30px;
+}
+
 @media only screen and (max-width: 800px) {
-	#settings-box {
-		display: none;
+	#config-box {
+		width: 100%;
 	}
 }
