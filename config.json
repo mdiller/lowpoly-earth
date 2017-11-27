@@ -1,0 +1,14 @@
+[
+	{
+		"name": "elevation_scale",
+		"label": "Elevation Scale",
+		"type": "integer",
+		"default": 400
+	},
+	{
+		"name": "compute_vertex_normals",
+		"label": "Use Vertex Normals",
+		"type": "boolean",
+		"default": false
+	}
+]

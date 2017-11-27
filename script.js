@@ -45,6 +45,10 @@ var json_data = {
 	color_gradient: null
 }
 
+// Config variables and info set in initConfig()
+var config = {};
+var config_info = [];
+
 // These shall be used to hold information for controlling the camera position
 var controls = {
 	x: null,
@@ -358,8 +362,8 @@ function elevationColorThree(elevation) {
 // Converts a point from globe.json into a THREE.Vector3
 // Takes elevation into account, adjusting for what we've configured
 function pointToVector(point) {
-	var radius = 1;
-	var elevation = point.elevation / 50000;
+	var radius = 1; // corresponds to 20903520 feet
+	var elevation = config.elevation_scale * (point.elevation / 20903520);
 	return new THREE.Vector3(
 		(radius + elevation) * point.x, 
 		(radius + elevation) * point.y, 
@@ -388,7 +392,7 @@ function triangleToFace(triangle) {
 }
 
 // Creates and adds the globe to the scene
-function addGlobe() {
+function loadGlobe() {
 	var globe = json_data.globe;
 	console.time('adding vertices');
 	globe.points.forEach(point => {
@@ -414,7 +418,11 @@ function addGlobe() {
 	console.time('computing face normals');
 	geometry.computeFaceNormals();
 	console.timeEnd('computing face normals');
-	// geometry.computeVertexNormals();
+	if (config.computeFaceNormals) {
+		console.time('computing face normals');
+		geometry.computeVertexNormals();
+		console.timeEnd('computing face normals');
+	}
 
 	console.time('animating');
 	animate();
@@ -424,23 +432,60 @@ function addGlobe() {
 	console.timeEnd("entire initialization");
 }
 
+// Initializes the config object
+function initConfig(config_data) {
+	config_data.forEach(setting => {
+		config[setting.name] = setting.default;
+		config_info.push(setting);
+	});
+	console.log(config);
+	console.log(config_info);
+}
+
+// Returns a Promise for a http request to get a binary file
+function getBINARY(url) {
+	return new Promise(function (resolve, reject) {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", url, true);
+		xhr.responseType = "arraybuffer";
+		xhr.onload = function () {
+			if (this.status >= 200 && this.status < 300) {
+				resolve(xhr.response);
+			}
+			else {
+				reject({
+					status: this.status,
+					statusText: xhr.statusText
+				});
+			}
+		};
+		xhr.onerror = function () {
+			reject({
+				status: this.status,
+				statusText: xhr.statusText
+			});
+		};
+		xhr.send();
+	});
+}
 
 console.time('entire globe initialization');
 console.time('loading color_gradient.json');
-// Load our json data, and then add the globe
-$.getJSON("./color_gradient/color_gradient.json", function(color_gradient) {
-	console.timeEnd('loading color_gradient.json');
-	json_data.color_gradient = color_gradient;
+console.time('loading config.json')
+console.time('loading globe.dat');
+$.when(
+	$.getJSON("./color_gradient/color_gradient.json", response => {
+		json_data.color_gradient = response;
+		console.timeEnd('loading color_gradient.json');
+	}),
 
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "./globe.dat", true);
-	xhr.responseType = "arraybuffer";
+	$.getJSON("./config.json", response => {
+		initConfig(response);
+		console.timeEnd('loading config.json');
+	}),
 
-	console.time('loading globe.dat');
-	xhr.onload = function(e) {
-		json_data.globe = bytesToGlobe(xhr.response);
+	getBINARY("./globe.dat").then(response => {
+		json_data.globe = bytesToGlobe(response);
 		console.timeEnd('loading globe.dat');
-		addGlobe();
-	};
-	xhr.send();
-});
+	})
+).then(loadGlobe);
