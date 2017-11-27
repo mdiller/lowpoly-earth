@@ -28,6 +28,6 @@ cpp_opengl_renderer/Debug/*
 !cpp_opengl_renderer/Debug/*.dll
 
 node_modules
-config.json
+build_config.json
 notes.md
 globe.dat

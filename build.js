@@ -2,7 +2,7 @@ var fs = require('fs');
 var async = require('async');
 var icosphere = require('./icosphere.js');
 
-config = JSON.parse(fs.readFileSync("config.json", "utf8"));
+config = JSON.parse(fs.readFileSync("build_config.json", "utf8"));
 
 var googleMapsClient = require('@google/maps').createClient({
 	key: config.google_api_key
@@ -16,21 +16,17 @@ function fixPrecision(x){
 	return x.toFixed(6).replace(/\.?0*$/, "");
 }
 
-function fixPrecisionNum(x){
-	return parseFloat(fixPrecision(x));
-}
-
 function xyzAddlatlong(x, y, z) {
 	var longitude = -(Math.atan2( -z, -x )) - Math.PI / 2;
 	if(longitude < - Math.PI) {
 		longitude += Math.PI * 2;
 	}
 	return {
-		x: fixPrecisionNum(x),
-		y: fixPrecisionNum(y),
-		z: fixPrecisionNum(z),
-		latitude: fixPrecisionNum(Math.asin(y) * (180 / Math.PI)),
-		longitude: fixPrecisionNum(longitude * (180 / Math.PI))
+		x: x,
+		y: y,
+		z: z,
+		latitude: Math.asin(y) * (180 / Math.PI),
+		longitude: longitude * (180 / Math.PI)
 	};
 }
 
