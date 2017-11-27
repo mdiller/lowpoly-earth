@@ -23,21 +23,32 @@ a {
 	height: 32px;
 	margin: 16px;
 	cursor: pointer;
+
+	transition: transform 0.5s;
+}
+
+#config-cog.hidden {
+	transform: rotate(180deg);
 }
 
 #config-box {
 	width: 500px;
-	background-color: #2C2F33;
+	background-color: #282a2e;
 	color: #FFFFFF;
+	opacity: 0.9;
 
 	position: fixed;
 	right: 0;
 	top: 0;
 	bottom: 0;
+
+	transform: none;
+
+	transition: transform 0.5s;
 }
 
 #config-box.hidden {
-	display: none;
+	transform: translateX(100%);
 }
 
 #config-header {
