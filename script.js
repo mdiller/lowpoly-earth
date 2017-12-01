@@ -80,7 +80,7 @@ var animate = function () {
 
 	var clock_delta = clock.getDelta();
 
-	var smoothing = Math.min(24 * clock_delta, 1);
+	var smoothing = Math.min(12 * clock_delta, 1);
 	var threshold = 0.05;
 
 	var zoom_smoothing = Math.min(9 * clock_delta, 1);
