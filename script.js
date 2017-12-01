@@ -33,6 +33,8 @@ scene.add(light);
 
 var geometry = new THREE.Geometry(); 
 
+var clock = new THREE.Clock;
+
 var camera_distance = 2.5;
 
 camera.position.z = camera_distance;
@@ -72,18 +74,20 @@ function degreesToPosition(theta, phi, radius) {
 
 //// Controls / Events
 
-
 // The main function of animate at this point is to control the camera position
 var animate = function () {
 	requestAnimationFrame( animate );
 
-	var smoothing = 0.2;
+	var clock_delta = clock.getDelta();
+
+	var smoothing = Math.min(24 * clock_delta, 1);
 	var threshold = 0.05;
 
-	var zoom_smoothing = 0.075;
+	var zoom_smoothing = Math.min(9 * clock_delta, 1);
 	var zoom_threshold = 0.0005;
 
 	var camera_changed = false;
+
 
 	if (controls.zoom != controls.actual_zoom) {
 		controls.actual_zoom += ((controls.zoom - controls.actual_zoom) * zoom_smoothing);
@@ -137,7 +141,7 @@ animate();
 
 function pressMove(x, y) {
 	// drawing is based on the height, so this scales with size of drawing
-	var moveScaling = 500.0 / canvas_element.height;
+	var moveScaling = 500.0 / canvas_element.clientHeight;
 
 	controls.theta += -((x - controls.x) * moveScaling);
 	controls.phi += ((y - controls.y) * moveScaling);
