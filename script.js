@@ -451,14 +451,32 @@ config_cog.addEventListener("click", event => {
 	config_box.classList.toggle("hidden");
 });
 
+function createConfigElement(config_item) {
+	var element_id = `config_item_${config_item.name}`;
+	var element_class = "config_item";
+	return {
+		integer: ``, // Not implemented yet
+		boolean: `
+			<label>
+				<input 
+					id="${element_id}" 
+					class="${element_class}"
+					type="checkbox">
+					${config_item.label}
+				</input>
+			</label>
+		`
+	}[config_item.type];
+}
+
 // Initializes the config object
 function initConfig(config_data) {
-	config_data.forEach(setting => {
-		config[setting.name] = setting.default;
-		config_info.push(setting);
-	});
-	console.log(config);
-	console.log(config_info);
+	config_data.forEach(config_item => {
+		config[config_item.name] = config_item.default;
+		config_info.push(config_item);
+
+		$("#config-content form").append(createConfigElement(config_item));
+	})
 }
 
 
