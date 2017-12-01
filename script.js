@@ -143,6 +143,9 @@ function pressMove(x, y) {
 	// drawing is based on the height, so this scales with size of drawing
 	var moveScaling = 500.0 / canvas_element.clientHeight;
 
+	// make movescaling less when youre more zoomed in
+	moveScaling *= controls.zoom / 2.5;
+
 	controls.theta += -((x - controls.x) * moveScaling);
 	controls.phi += ((y - controls.y) * moveScaling);
 
