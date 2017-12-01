@@ -155,7 +155,7 @@ function pressDown(x, y) {
 }
 
 function zoomChange(delta) {
-	var zoom_scaling = 0.001;
+	var zoom_scaling = 0.1;
 
 	controls.zoom += delta * zoom_scaling;
 
@@ -169,7 +169,7 @@ function touchesUpdate(x1, y1, x2, y2) {
 
 // Called on touchmove if there are 2 or more touches
 function touchesMove(x1, y1, x2, y2) {
-	var touch_zoom_scaling = 3;
+	var touch_zoom_scaling = 0.03;
 
 	var new_delta = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
@@ -255,7 +255,12 @@ canvas_element.addEventListener("touchmove", event => {
 
 canvas_element.addEventListener("wheel", event => {
 	event.preventDefault();
-	zoomChange(event.deltaY);
+	var divisor = {
+		0: 100,
+		1: 3,
+		2: 1
+	}[event.deltaMode] // based on the usual values for these modes
+	zoomChange(event.deltaY / divisor);
 });
 
 // Resizes the canvas element and the renderer when the screen changes
