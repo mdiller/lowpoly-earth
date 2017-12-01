@@ -4,20 +4,20 @@ console.time("entire initialization");
 
 var scene = new THREE.Scene();
 
-var canvasElement = document.getElementById("drawing-canvas");
+var canvas_element = document.getElementById("drawing-canvas");
 
-var renderer = new THREE.WebGLRenderer({ canvas: canvasElement });
+var renderer = new THREE.WebGLRenderer({ canvas: canvas_element });
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 resizeCanvas();
 
 //// Ocean
-var oceanGeometry = new THREE.IcosahedronBufferGeometry(1, 6);
-var oceanMaterial = new THREE.MeshBasicMaterial({ 
+var ocean_geometry = new THREE.IcosahedronBufferGeometry(1, 6);
+var ocean_material = new THREE.MeshBasicMaterial({ 
 	color: 0x0000ff, 
 	transparent: true,
 	opacity: 0.5
 });
-var ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
+var ocean = new THREE.Mesh(ocean_geometry, ocean_material);
 scene.add(ocean);
 
 //// Lighting
@@ -32,7 +32,6 @@ scene.add(light);
 
 
 var geometry = new THREE.Geometry(); 
-
 
 var camera_distance = 2.5;
 
@@ -81,15 +80,15 @@ var animate = function () {
 	var smoothing = 0.2;
 	var threshold = 0.05;
 
-	var zoomSmoothing = 0.075;
-	var zoomThreshold = 0.0005;
+	var zoom_smoothing = 0.075;
+	var zoom_threshold = 0.0005;
 
 	var camera_changed = false;
 
 	if (controls.zoom != controls.actual_zoom) {
-		controls.actual_zoom += ((controls.zoom - controls.actual_zoom) * zoomSmoothing);
+		controls.actual_zoom += ((controls.zoom - controls.actual_zoom) * zoom_smoothing);
 
-		if (controls.actual_zoom < controls.zoom + zoomThreshold && controls.actual_zoom > controls.zoom - zoomThreshold) {
+		if (controls.actual_zoom < controls.zoom + zoom_threshold && controls.actual_zoom > controls.zoom - zoom_threshold) {
 			controls.actual_zoom = controls.zoom;
 		}
 
@@ -138,7 +137,7 @@ animate();
 
 function pressMove(x, y) {
 	// drawing is based on the height, so this scales with size of drawing
-	var moveScaling = 500.0 / canvasElement.height;
+	var moveScaling = 500.0 / canvas_element.height;
 
 	controls.theta += -((x - controls.x) * moveScaling);
 	controls.phi += ((y - controls.y) * moveScaling);
@@ -152,9 +151,9 @@ function pressDown(x, y) {
 }
 
 function zoomChange(delta) {
-	var zoomScaling = 0.001;
+	var zoom_scaling = 0.001;
 
-	controls.zoom += delta * zoomScaling;
+	controls.zoom += delta * zoom_scaling;
 
 	controls.zoom = Math.max(0.1, controls.zoom);
 }
@@ -166,21 +165,21 @@ function touchesUpdate(x1, y1, x2, y2) {
 
 // Called on touchmove if there are 2 or more touches
 function touchesMove(x1, y1, x2, y2) {
-	var touchZoomScaling = 3;
+	var touch_zoom_scaling = 3;
 
 	var new_delta = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
-	zoomChange((controls.touch_delta - new_delta) * touchZoomScaling);
+	zoomChange((controls.touch_delta - new_delta) * touch_zoom_scaling);
 }
 
-canvasElement.addEventListener('mousedown', event => {
+canvas_element.addEventListener('mousedown', event => {
 	event.preventDefault();
 	if (event.button == 0) {
 		pressDown(event.clientX, event.clientY);
 	}
 }, false);
 
-canvasElement.addEventListener('mousemove', event => {
+canvas_element.addEventListener('mousemove', event => {
 	event.preventDefault();
 
 	if (event.buttons & 1) {
@@ -189,7 +188,7 @@ canvasElement.addEventListener('mousemove', event => {
 	pressDown(event.clientX, event.clientY);
 }, false);
 
-canvasElement.addEventListener("touchstart", event => {
+canvas_element.addEventListener("touchstart", event => {
 	event.preventDefault();
 
 	if (event.touches) {
@@ -207,7 +206,7 @@ canvasElement.addEventListener("touchstart", event => {
 	}
 });
 
-canvasElement.addEventListener("touchend", event => {
+canvas_element.addEventListener("touchend", event => {
 	event.preventDefault();
 
 	if (event.touches) {
@@ -225,7 +224,7 @@ canvasElement.addEventListener("touchend", event => {
 	}
 });
 
-canvasElement.addEventListener("touchmove", event => {
+canvas_element.addEventListener("touchmove", event => {
 	event.preventDefault();
 	
 	if (event.touches) {
@@ -250,7 +249,7 @@ canvasElement.addEventListener("touchmove", event => {
 	}
 });
 
-canvasElement.addEventListener("wheel", event => {
+canvas_element.addEventListener("wheel", event => {
 	event.preventDefault();
 	zoomChange(event.deltaY);
 });
