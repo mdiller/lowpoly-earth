@@ -35,10 +35,10 @@ var geometry = new THREE.Geometry();
 
 var clock = new THREE.Clock;
 
-var camera_distance = 2.5;
+var zoom_start = 2.5;
 
-camera.position.z = camera_distance;
-light.position.z = camera_distance;
+camera.position.z = zoom_start;
+light.position.z = zoom_start;
 
 // These shall be filled in the ajax call at the end of the file
 var json_data = {
@@ -58,8 +58,8 @@ var controls = {
 	phi: 0,
 	actual_theta: 0,
 	actual_phi: 0,
-	zoom: camera_distance,
-	actual_zoom: camera_distance,
+	zoom: zoom_start,
+	actual_zoom: zoom_start,
 	touch_delta: 0
 }
 
@@ -144,7 +144,7 @@ function pressMove(x, y) {
 	var moveScaling = 500.0 / canvas_element.clientHeight;
 
 	// make movescaling less when youre more zoomed in
-	moveScaling *= controls.zoom / 2.5;
+	moveScaling *= Math.max(controls.zoom, 1) / zoom_start;
 
 	controls.theta += -((x - controls.x) * moveScaling);
 	controls.phi += ((y - controls.y) * moveScaling);
