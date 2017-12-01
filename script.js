@@ -261,9 +261,11 @@ function resizeCanvas() {
 	var width = window.innerWidth;
 	var height = window.innerHeight;
 
+
 	camera.aspect = width / height;
 	camera.updateProjectionMatrix();
 	renderer.setSize(width, height);
+	renderer.setPixelRatio(window.devicePixelRatio);
 }
 window.addEventListener('resize', resizeCanvas, false);
 
