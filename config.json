@@ -16,5 +16,25 @@
 		"label": "Render Globe Interior",
 		"type": "boolean",
 		"default": false
+	},
+	{
+		"name": "triangle_coloring",
+		"label": "Triangle Coloring",
+		"type": "select",
+		"default": "max",
+		"options": [
+			{
+				"name": "max",
+				"localized": "Highest Vertex Color"
+			},
+			{
+				"name": "min",
+				"localized": "Lowest Vertex Color"
+			},
+			{
+				"name": "all",
+				"localized": "All Vertex Colors (gradient)"
+			}
+		]
 	}
 ]

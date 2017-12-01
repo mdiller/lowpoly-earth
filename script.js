@@ -376,23 +376,50 @@ function pointToVector(point) {
 		(radius + elevation) * point.z);
 }
 
-// Converts a triangle from globe.json into a THREE.Vector3
-function triangleToFace(triangle) {
+
+// Colors a face when given its index
+function colorFace(face, index) {
 	var globe = json_data.globe;
-	var face = new THREE.Face3(triangle.p1, triangle.p2, triangle.p3);
+	var triangle = globe.triangles[index];
 
 	var points = [
 		globe.points[triangle.p1],
 		globe.points[triangle.p2],
 		globe.points[triangle.p3]
 	];
-	var elevation = Math.max(...points.map(point => point.elevation));
-	var color = elevationColorThree(elevation);
+	switch(config.triangle_coloring) {
+		case "max":
+			var color = points.reduce((p1, p2) => p1.elevation > p2.elevation ? p1 : p2).color;
 
-	// Initial style will have one color per face
-	face.vertexColors[0] = color;
-	face.vertexColors[1] = color;
-	face.vertexColors[2] = color;
+			face.vertexColors[0] = color;
+			face.vertexColors[1] = color;
+			face.vertexColors[2] = color;
+			break;
+		case "min":
+			var color = points.reduce((p1, p2) => p1.elevation < p2.elevation ? p1 : p2).color;
+
+			face.vertexColors[0] = color;
+			face.vertexColors[1] = color;
+			face.vertexColors[2] = color;
+			break;
+		case "all":
+			face.vertexColors[0] = points[0].color;
+			face.vertexColors[1] = points[1].color;
+			face.vertexColors[2] = points[2].color;
+			break;
+		default:
+			console.error("bad triangle color setting");
+	}
+}
+
+// Converts a triangle from globe.json into a THREE.Vector3
+// Passed the index of the triangle instead of the triangle itself, to allow for freedom
+function triangleToFace(index) {
+	var triangle = json_data.globe.triangles[index];
+
+	var face = new THREE.Face3(triangle.p1, triangle.p2, triangle.p3);
+
+	colorFace(face, index);
 
 	return face;
 }
@@ -400,6 +427,12 @@ function triangleToFace(triangle) {
 // Creates and adds the globe to the scene
 function loadGlobe() {
 	var globe = json_data.globe;
+	console.time('computing vertex colors');
+	globe.points.forEach(point => {
+		point.color = elevationColorThree(point.elevation);
+	});
+	console.timeEnd('computing vertex colors');
+
 	console.time('adding vertices');
 	globe.points.forEach(point => {
 		geometry.vertices.push(pointToVector(point));
@@ -407,8 +440,8 @@ function loadGlobe() {
 	console.timeEnd('adding vertices');
 
 	console.time('adding triangles');
-	globe.triangles.forEach(triangle => {
-		geometry.faces.push(triangleToFace(triangle));
+	globe.triangles.forEach((triangle, index) => {
+		geometry.faces.push(triangleToFace(index));
 	});
 	console.timeEnd('adding triangles');
 
@@ -451,22 +484,54 @@ config_cog.addEventListener("click", event => {
 	config_box.classList.toggle("hidden");
 });
 
+var config_element_class = "config_item";
 function createConfigElement(config_item) {
 	var element_id = `config_item_${config_item.name}`;
-	var element_class = "config_item";
 	return {
 		integer: ``, // Not implemented yet
 		boolean: `
 			<label>
 				<input 
 					id="${element_id}" 
-					class="${element_class}"
+					class="${config_element_class}"
 					type="checkbox">
 					${config_item.label}
 				</input>
-			</label>
-		`
+			</label>`,
+		select: `
+			<label for="${element_id}">${config_item.label}</label>
+			<select
+				id="${element_id}"
+				class="${config_element_class}">
+				${(config_item.options || []).map(option => {
+					var selected = config_item.default == option.name ? " selected" : "";
+					return `
+						<option value="${option.name}"${selected}>
+							${option.localized}
+						</option>`;
+				}).join("\n")}
+			</select>`
 	}[config_item.type];
+}
+
+function configElementChanged(name, value) {
+	console.log(name, value);
+}
+
+// handler for jquery event, clean up and give to configElementChanged
+function configElementChangedHandler() {
+	var element = $(this);
+	var name = element.attr("id").replace("config_item_", "");
+
+	if (element.is("select")) {
+		configElementChanged(name, element.val());
+	}
+	else if (element.attr("type") == "checkbox") {
+		configElementChanged(name, element.is(":checked"));
+	}
+	else {
+		console.error("don't know what type of input this is!");
+	}
 }
 
 // Initializes the config object
@@ -476,7 +541,9 @@ function initConfig(config_data) {
 		config_info.push(config_item);
 
 		$("#config-content form").append(createConfigElement(config_item));
-	})
+	});
+
+	$(`.${config_element_class}`).change(configElementChangedHandler);
 }
 
 
