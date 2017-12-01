@@ -10,5 +10,11 @@
 		"label": "Use Vertex Normals",
 		"type": "boolean",
 		"default": false
+	},
+	{
+		"name": "render_globe_interior",
+		"label": "Render Globe Interior",
+		"type": "boolean",
+		"default": false
 	}
 ]
