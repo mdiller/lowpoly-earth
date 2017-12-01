@@ -413,7 +413,8 @@ function loadGlobe() {
 	console.timeEnd('adding triangles');
 
 	var material = new THREE.MeshPhongMaterial({
-		vertexColors: THREE.VertexColors
+		vertexColors: THREE.VertexColors,
+		side: THREE.DoubleSide
 	});
 
 	var globe_object = new THREE.Mesh(geometry, material);
