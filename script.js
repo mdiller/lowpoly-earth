@@ -488,7 +488,16 @@ var config_element_class = "config_item";
 function createConfigElement(config_item) {
 	var element_id = `config_item_${config_item.name}`;
 	return {
-		integer: ``, // Not implemented yet
+		integer: `
+			<label for="${element_id}">${config_item.label}</label>
+			<input
+				id="${element_id}" 
+				class="${config_element_class}"
+				type="range"
+				min="1"
+				max="580"
+				value="${config_item.default}">
+			</input>`,
 		boolean: `
 			<label>
 				<input 
@@ -528,6 +537,9 @@ function configElementChangedHandler() {
 	}
 	else if (element.attr("type") == "checkbox") {
 		configElementChanged(name, element.is(":checked"));
+	}
+	else if (element.attr("type") == "range") {
+		configElementChanged(name, element.val());
 	}
 	else {
 		console.error("don't know what type of input this is!");

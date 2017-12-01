@@ -73,6 +73,7 @@ label {
 	user-select: none;
 	display: block;
 	margin-top: 15px;
+	margin-bottom: 5px;
 }
 
 @media only screen and (max-width: 800px) {

@@ -3,6 +3,8 @@
 		"name": "elevation_scale",
 		"label": "Elevation Scale",
 		"type": "integer",
+		"min": 1,
+		"max": 580,
 		"default": 400
 	},
 	{
