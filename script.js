@@ -30,8 +30,13 @@ scene.add( light );
 var light = new THREE.PointLight(0xffffff);
 scene.add(light);
 
+var material = new THREE.MeshPhongMaterial({
+	vertexColors: THREE.VertexColors
+});
 
 var geometry = new THREE.Geometry(); 
+
+geometry.dynamic = true;
 
 var clock = new THREE.Clock;
 
@@ -445,10 +450,6 @@ function loadGlobe() {
 	});
 	console.timeEnd('adding triangles');
 
-	var material = new THREE.MeshPhongMaterial({
-		vertexColors: THREE.VertexColors
-	});
-
 	if (config.render_globe_interior) {
 		material.side = THREE.DoubleSide;
 	}
@@ -460,10 +461,10 @@ function loadGlobe() {
 	console.time('computing face normals');
 	geometry.computeFaceNormals();
 	console.timeEnd('computing face normals');
-	if (config.computeFaceNormals) {
-		console.time('computing face normals');
+	if (config.compute_vertex_normals) {
+		console.time('computing vertex normals');
 		geometry.computeVertexNormals();
-		console.timeEnd('computing face normals');
+		console.timeEnd('computing vertex normals');
 	}
 
 	console.time('animating');
@@ -525,6 +526,9 @@ function createConfigElement(config_item) {
 
 function configElementChanged(name, value) {
 	console.log(name, value);
+	var new_config = {}
+	new_config[name] = value;
+	doConfigAction(new_config);
 }
 
 // handler for jquery event, clean up and give to configElementChanged
@@ -558,6 +562,47 @@ function initConfig(config_data) {
 	$(`.${config_element_class}`).change(configElementChangedHandler);
 }
 
+// Function to call when there is config work to be done
+function doConfigAction(new_config) {
+	var dirty = {};
+	Object.keys(new_config).forEach(key => {
+		dirty[key] = true
+		config[key] = new_config[key]
+	});
+
+	if (dirty.render_globe_interior) {
+		material.side = config.render_globe_interior ? THREE.DoubleSide : THREE.FrontSide;
+	}
+
+	if (dirty.elevation_scale) {
+		json_data.globe.points.forEach((point, i) => {
+			var vector = pointToVector(point);
+			geometry.vertices[i].x = vector.x;
+			geometry.vertices[i].y = vector.y;
+			geometry.vertices[i].z = vector.z;
+		});
+		geometry.verticesNeedUpdate = true;
+	}
+
+	if (dirty.triangle_coloring) {
+		geometry.faces.forEach((face, index) => {
+			colorFace(face, index);
+		});
+		geometry.elementsNeedUpdate = true;
+	}
+
+	if (dirty.compute_vertex_normals) {
+		if (config.compute_vertex_normals) {
+			geometry.computeVertexNormals();
+		}
+		else {
+			geometry.faces.forEach(face => {
+				face.vertexNormals = [];
+			});
+		}
+		geometry.elementsNeedUpdate = true;
+	}
+}
 
 
 // Returns a Promise for a http request to get a binary file
