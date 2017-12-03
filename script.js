@@ -10,16 +10,6 @@ var renderer = new THREE.WebGLRenderer({ canvas: canvas_element });
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
 resizeCanvas();
 
-//// Ocean
-var ocean_geometry = new THREE.IcosahedronBufferGeometry(1, 6);
-var ocean_material = new THREE.MeshBasicMaterial({ 
-	color: 0x0000ff, 
-	transparent: true,
-	opacity: 0.5
-});
-var ocean = new THREE.Mesh(ocean_geometry, ocean_material);
-scene.add(ocean);
-
 //// Lighting
 
 // Ambient light
@@ -34,6 +24,7 @@ var material = new THREE.MeshPhongMaterial({
 	vertexColors: THREE.VertexColors
 });
 
+var ocean_geometry = new THREE.Geometry();
 var geometry = new THREE.Geometry(); 
 
 geometry.dynamic = true;
@@ -372,9 +363,19 @@ function elevationColorThree(elevation) {
 
 // Converts a point from globe.json into a THREE.Vector3
 // Takes elevation into account, adjusting for what we've configured
-function pointToVector(point) {
+function pointToVector(point, use_elevation=true) {
 	var radius = 1; // corresponds to 20903520 feet
 	var elevation = config.elevation_scale * (point.elevation / 20903520);
+
+	// To prevent the earth havin a z-fight with the ocean when elevation_scale is low
+	var threshold = 0.001;
+	if (Math.abs(elevation) < threshold){
+		elevation = elevation > 0 ? threshold : -threshold;
+	}
+
+	if (!use_elevation) {
+		elevation = 0;
+	}
 	return new THREE.Vector3(
 		(radius + elevation) * point.x, 
 		(radius + elevation) * point.y, 
@@ -419,12 +420,14 @@ function colorFace(face, index) {
 
 // Converts a triangle from globe.json into a THREE.Vector3
 // Passed the index of the triangle instead of the triangle itself, to allow for freedom
-function triangleToFace(index) {
+function triangleToFace(index, add_colors=true) {
 	var triangle = json_data.globe.triangles[index];
 
 	var face = new THREE.Face3(triangle.p1, triangle.p2, triangle.p3);
 
-	colorFace(face, index);
+	if (add_colors) {
+		colorFace(face, index);
+	}
 
 	return face;
 }
@@ -432,6 +435,23 @@ function triangleToFace(index) {
 // Creates and adds the globe to the scene
 function loadGlobe() {
 	var globe = json_data.globe;
+
+	//// Ocean
+	globe.points.forEach(point => {
+		ocean_geometry.vertices.push(pointToVector(point, false));
+	});
+	globe.triangles.forEach((triangle, index) => {
+		ocean_geometry.faces.push(triangleToFace(index, false));
+	});
+
+	var ocean_material = new THREE.MeshBasicMaterial({ 
+		color: 0x0000ff, 
+		transparent: true,
+		opacity: 0.5
+	});
+	var ocean = new THREE.Mesh(ocean_geometry, ocean_material);
+	scene.add(ocean);
+
 	console.time('computing vertex colors');
 	globe.points.forEach(point => {
 		point.color = elevationColorThree(point.elevation);
@@ -581,6 +601,8 @@ function doConfigAction(new_config) {
 			geometry.vertices[i].y = vector.y;
 			geometry.vertices[i].z = vector.z;
 		});
+		geometry.computeFaceNormals();
+		geometry.elementsNeedUpdate = true;
 		geometry.verticesNeedUpdate = true;
 	}
 
