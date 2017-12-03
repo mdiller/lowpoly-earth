@@ -408,6 +408,12 @@ function colorFace(face, index) {
 			face.vertexColors[1] = color;
 			face.vertexColors[2] = color;
 			break;
+		case "avg":
+			var color = elevationColorThree(points.map(p => p.elevation).reduce((e1, e2) => e1 + e2) / points.length);
+			face.vertexColors[0] = color;
+			face.vertexColors[1] = color;
+			face.vertexColors[2] = color;
+			break;
 		case "all":
 			face.vertexColors[0] = points[0].color;
 			face.vertexColors[1] = points[1].color;

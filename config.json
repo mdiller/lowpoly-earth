@@ -34,6 +34,10 @@
 				"localized": "Lowest Vertex Color"
 			},
 			{
+				"name": "avg",
+				"localized": "Average Vertex Color"
+			},
+			{
 				"name": "all",
 				"localized": "All Vertex Colors (gradient)"
 			}
