@@ -24,9 +24,6 @@ config = {
 		path: path.resolve(__dirname, "build"),
 		publicPath: "build/"
 	},
-	devServer: {
-		outputPath: path.join(__dirname, "build")
-	},
 	plugins: [
 		new CopyWebpackPlugin([
 			{ from: 'public' }
