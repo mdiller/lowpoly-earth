@@ -2,7 +2,7 @@
 
 This is the history of my storage of the elevation data for this project.
 
-All the sizes listed below are for when the file is generated with an icosphere with a subdivision level of 6.
+All the sizes listed below are for when the file is generated with an icosphere with a recursion level of 6.
 
 ## globe.json (12.1 MB)
 
@@ -85,16 +85,16 @@ You may have noticed that since the triangles of the icosphere are referencing t
 
 | Format | Description                        |
 | ------ | ---------------------------------- |
-| int16  | subdivisions                       |
+| int16  | recursion level                    |
 | int16  | elevation for 1<sup>st</sup> point |
 | int16  | elevation for 2<sup>nd</sup> point |
 | int16  | elevation for 3<sup>rd</sup> point |
 | ...    | ...                                |
 | int16  | elevation for n<sup>th</sup> point |
 
-The reason this works is because the number of subdivisions is directly related to the number of points of an icosphere, via the equation <code>n = 12 × 5<sup>s</sup></code> where `n` is the number of points, and `s` is the number of subdivisions.
+The reason this works is because the number of levels of recursion is directly related to the number of points of an icosphere, via the equation <code>n = 12 × 5<sup>r</sup></code> where `n` is the number of points, and `r` is the recursion level.
 
-I am just about able to use int16s to represent elevation on land, because maximum value of an int16 is 32,767, and the highest point on earth (Mt. Everest) is about 29,029 feet above sea level. However, the lowest value of a uint16 is -32,768, which is just a bit too high for the lowest elevation on earth (The Mariana Trench) measured at 36,070 feet below sea level. This means that a uint16 is *just barely* not big enough to store elevation data for every point on earth. Because it is so close, I made the decision that a difference of ~3,300 feet of depth at one point in the ocean floor is not enough to matter on my low-poly earth, especially since we have a subdivision level of only 6.
+I am just about able to use int16s to represent elevation on land, because maximum value of an int16 is 32,767, and the highest point on earth (Mt. Everest) is about 29,029 feet above sea level. However, the lowest value of a uint16 is -32,768, which is just a bit too high for the lowest elevation on earth (The Mariana Trench) measured at 36,070 feet below sea level. This means that a uint16 is *just barely* not big enough to store elevation data for every point on earth. Because it is so close, I made the decision that a difference of ~3,300 feet of depth at one point in the ocean floor is not enough to matter on my low-poly earth, especially since we have a recursion level of only 6.
 
 This final format brought the file size down to 81 KB, which is an improvement on the original file size by a magniude of about 150. I am quite happy with this file size, and I think that this is the smallest I can get the file to be without throwing away elevation precision.
 

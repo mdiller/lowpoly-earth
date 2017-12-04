@@ -37,7 +37,7 @@ function globeToBytes(globe) {
 	// Also, see elevation_history.md for an explanation of how I used to format this data
 	
 	var elevation_ints = new Int16Array(globe.points.length + 1);
-	elevation_ints[0] = subdivisions;
+	elevation_ints[0] = recursion_level;
 
 	for (var i = 0; i < globe.points.length; i++) {
 		elevation_ints[i + 1] = Math.min(Math.max(globe.points[i].elevation, -32768), 32767);
@@ -50,9 +50,9 @@ function dumpToFile(globe) {
 	fs.writeFileSync(outfile, globeToBytes(globe)); 
 }
 
-var subdivisions = 6;
+var recursion_level = 6;
 
-var globe = icosphere.create(subdivisions);
+var globe = icosphere.create(recursion_level);
 
 globe.points = globe.points.map(p => xyzAddlatlong(p.x, p.y, p.z));
 

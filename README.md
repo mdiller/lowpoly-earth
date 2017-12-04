@@ -6,7 +6,7 @@ This is a low polygon count rendering of the earth. I created it using THREE.js 
 
 The first step in this project was to retrieve elevation data so that I could have something to display. I wanted to do this separately from the rendering, because if this was done before the client even loaded the page, that would mean they would not have to wait for it. 
 
-To that end, I run [build.js](./dev/build.js) using node.js. First I create an [icosphere](https://en.wikipedia.org/wiki/Icosphere), with a set subdivision level, using [icosphere.js](./src/icosphere.js). I then collect each point on the icosphere, figure out the latitude and longitude coordinates of the point, and get the elevation of that point from the [Google Maps API](https://developers.google.com/maps/documentation/elevation/start).
+To that end, I run [build.js](./dev/build.js) using node.js. First I create an [icosphere](https://en.wikipedia.org/wiki/Icosphere), at a specific level of recursion, using [icosphere.js](./src/icosphere.js). I then collect each point on the icosphere, figure out the latitude and longitude coordinates of the point, and get the elevation of that point from the [Google Maps API](https://developers.google.com/maps/documentation/elevation/start).
 
 Once all of the data has been collected, I save it in elevation.dat, to be used in the actual application.
 
@@ -16,7 +16,7 @@ The elevation data is stored in the following format:
 
 | Format | Description                        |
 | ------ | ---------------------------------- |
-| int16  | subdivisions                       |
+| int16  | recursion level                    |
 | int16  | elevation for 1<sup>st</sup> point |
 | int16  | elevation for 2<sup>nd</sup> point |
 | int16  | elevation for 3<sup>rd</sup> point |

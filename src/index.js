@@ -291,9 +291,9 @@ function bytesToGlobe(buffer) {
 	// Also, see elevation_history.md for an explanation of how I used to format this data
 
 	var header = new Int16Array(buffer, 0, 1);
-	var subdivisions = header[0];
+	var recursion_level = header[0];
 
-	var globe = icosphere.create(subdivisions);
+	var globe = icosphere.create(recursion_level);
 
 	var elevation_ints = new Int16Array(buffer, 2, globe.points.length);
 
