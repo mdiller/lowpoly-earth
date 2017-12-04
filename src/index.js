@@ -1,6 +1,7 @@
 var THREE = require("three");
 var $ = require("jquery");
-var color_gradient = require("./color_gradient.json")
+var icosphere = require("./icosphere.js");
+var color_gradient = require("./color_gradient.json");
 
 var config_info = require("./config.json");
 
@@ -286,47 +287,18 @@ window.addEventListener('resize', resizeCanvas, false);
 //// Globe stuff
 
 function bytesToGlobe(buffer) {
-	var floats_per_point = 6;
-	var ints_per_triangle = 3;
+	// See README.md for an explanation of how elevation.dat is formatted
 
-	var globe = {};
+	var header = new Int16Array(buffer, 0, 1);
+	var subdivisions = header[0];
 
-	// The header has the text GLOBEDAT, followed by:
-	// num_points (int32)
-	// num_triangles (int32)
-	var offset = 8; // skip the first 8 bytes (GLOBEDAT)
-	var header_info = new Int32Array(buffer, offset, 2);
-	var num_points = header_info[0];
-	var num_triangles = header_info[1];
-	offset += 2  * header_info.BYTES_PER_ELEMENT; // skip over the rest of the header
+	var globe = icosphere.create(subdivisions);
 
-	var point_floats = new Float32Array(buffer, offset, num_points * floats_per_point);
-	offset += num_points * floats_per_point * point_floats.BYTES_PER_ELEMENT;
+	var elevation_ints = new Int16Array(buffer, 2, globe.points.length);
 
-	var triangle_ints = new Uint16Array(buffer, offset, num_triangles * ints_per_triangle);
-
-	globe.points = [];
-	for (var i = 0; i < num_points; i++) {
-		var j = i * floats_per_point;
-		globe.points.push({
-			x: point_floats[j],
-			y: point_floats[j + 1],
-			z: point_floats[j + 2],
-			latitude: point_floats[j + 3],
-			longitude: point_floats[j + 4],
-			elevation: point_floats[j + 5]
-		});
-	}
-
-	globe.triangles = [];
-	for (var i = 0; i < num_triangles; i++) {
-		var j = i * ints_per_triangle;
-		globe.triangles.push({
-			p1: triangle_ints[j],
-			p2: triangle_ints[j + 1],
-			p3: triangle_ints[j + 2],
-		});
-	}
+	globe.points.forEach((point, i) => {
+		point.elevation = elevation_ints[i];
+	});
 
 	return globe;
 }
@@ -336,7 +308,7 @@ function bytesToGlobe(buffer) {
 // Uses a color gradient. See color_gradient/build_color_gradiant.js for more info
 function elevationColor(elevation) {
 	var i = 0;
-	while (elevation > color_gradient[i].elevation && i < color_gradient.length) {
+	while (i < color_gradient.length && elevation > color_gradient[i].elevation) {
 		i++;
 	}
 	if (i == 0) {
@@ -665,10 +637,10 @@ function getBINARY(url) {
 }
 
 console.time('entire globe initialization');
-console.time('loading globe.dat');
+console.time('loading elevation.dat');
 $.when(
-	getBINARY("./globe.dat").then(response => {
+	getBINARY("./elevation.dat").then(response => {
 		json_data.globe = bytesToGlobe(response);
-		console.timeEnd('loading globe.dat');
+		console.timeEnd('loading elevation.dat');
 	})
 ).then(loadGlobe);
