@@ -288,6 +288,7 @@ window.addEventListener('resize', resizeCanvas, false);
 
 function bytesToGlobe(buffer) {
 	// See README.md for an explanation of how elevation.dat is formatted
+	// Also, see elevation_history.md for an explanation of how I used to format this data
 
 	var header = new Int16Array(buffer, 0, 1);
 	var subdivisions = header[0];

@@ -34,6 +34,7 @@ function xyzAddlatlong(x, y, z) {
 
 function globeToBytes(globe) {
 	// See README.md for an explanation of how elevation.dat is formatted
+	// Also, see elevation_history.md for an explanation of how I used to format this data
 	
 	var elevation_ints = new Int16Array(globe.points.length + 1);
 	elevation_ints[0] = subdivisions;
