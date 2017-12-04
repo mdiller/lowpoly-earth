@@ -7,11 +7,11 @@
 
 var fs = require("fs");
 
-config = {
+var config = {
 	filename: "color_gradient.c3g",
 	min: -11000,
 	max: 8500,
-	outfile: "color_gradient.json"
+	outfile: "../../src/color_gradient.json"
 }
 
 var text = fs.readFileSync(config.filename, "utf8");

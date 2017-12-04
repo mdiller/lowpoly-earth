@@ -2,15 +2,27 @@
   "name": "lowpoly-earth",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "dependencies": {
-    "@google/maps": "^0.4.5",
-    "async": "^2.5.0"
-  },
-  "devDependencies": {},
+  "main": "bundle.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "webpack --watch",
+    "build": "npm install && webpack"
   },
-  "author": "",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mdiller/lowpoly-earth"
+  },
+  "author": "Malcolm Diller",
+  "license": "ISC",
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "three": "^0.88.0",
+    "webpack": "^3.5.5"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "copy-webpack-plugin": "^4.2.3",
+    "json-loader": "^0.5.7"
+  }
 }

@@ -1,31 +1,4 @@
-# gitignore for C++
-# Compiled Object files
-*.slo
-*.lo
-*.o
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-
-# Visual Studio Files
-*.suo
-*.csproj.user
-*.vbproj.user
-*.vcxproj.user
-ipch
-*sdf
-*.opendb
-*.db
-
-
-cpp_opengl_renderer/Debug/*
-!cpp_opengl_renderer/Debug/*.dll
+build/
 
 node_modules
 build_config.json

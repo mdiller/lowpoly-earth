@@ -1,6 +1,6 @@
 var fs = require('fs');
 var async = require('async');
-var icosphere = require('./icosphere.js');
+var icosphere = require('../icosphere.js');
 
 config = JSON.parse(fs.readFileSync("build_config.json", "utf8"));
 

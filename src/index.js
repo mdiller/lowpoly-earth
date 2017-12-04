@@ -1,3 +1,14 @@
+var THREE = require("three");
+var $ = require("jquery");
+var color_gradient = require("./color_gradient.json")
+
+var config_info = require("./config.json");
+
+
+// Config variables and info set in initConfig()
+var config = {};
+initConfig();
+
 console.log(`Hello! Welcome to the console of my LowPoly Globe!
 I've set this up to provide some timing information about my application`);
 console.time("entire initialization");
@@ -38,13 +49,8 @@ light.position.z = zoom_start;
 
 // These shall be filled in the ajax call at the end of the file
 var json_data = {
-	globe: null,
-	color_gradient: null
+	globe: null
 }
-
-// Config variables and info set in initConfig()
-var config = {};
-var config_info = [];
 
 // These shall be used to hold information for controlling the camera position
 var controls = {
@@ -290,8 +296,8 @@ function bytesToGlobe(buffer) {
 	// num_triangles (int32)
 	var offset = 8; // skip the first 8 bytes (GLOBEDAT)
 	var header_info = new Int32Array(buffer, offset, 2);
-	num_points = header_info[0];
-	num_triangles = header_info[1];
+	var num_points = header_info[0];
+	var num_triangles = header_info[1];
 	offset += 2  * header_info.BYTES_PER_ELEMENT; // skip over the rest of the header
 
 	var point_floats = new Float32Array(buffer, offset, num_points * floats_per_point);
@@ -329,7 +335,6 @@ function bytesToGlobe(buffer) {
 // Gets a color based on an elevation
 // Uses a color gradient. See color_gradient/build_color_gradiant.js for more info
 function elevationColor(elevation) {
-	var color_gradient = json_data.color_gradient;
 	var i = 0;
 	while (elevation > color_gradient[i].elevation && i < color_gradient.length) {
 		i++;
@@ -577,10 +582,9 @@ function configElementChangedHandler() {
 }
 
 // Initializes the config object
-function initConfig(config_data) {
-	config_data.forEach(config_item => {
+function initConfig() {
+	config_info.forEach(config_item => {
 		config[config_item.name] = config_item.default;
-		config_info.push(config_item);
 
 		$("#config-content form").append(createConfigElement(config_item));
 	});
@@ -661,20 +665,8 @@ function getBINARY(url) {
 }
 
 console.time('entire globe initialization');
-console.time('loading color_gradient.json');
-console.time('loading config.json')
 console.time('loading globe.dat');
 $.when(
-	$.getJSON("./color_gradient/color_gradient.json", response => {
-		json_data.color_gradient = response;
-		console.timeEnd('loading color_gradient.json');
-	}),
-
-	$.getJSON("./config.json", response => {
-		initConfig(response);
-		console.timeEnd('loading config.json');
-	}),
-
 	getBINARY("./globe.dat").then(response => {
 		json_data.globe = bytesToGlobe(response);
 		console.timeEnd('loading globe.dat');
