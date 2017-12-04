@@ -11,10 +11,10 @@ As a lover of json, my first instict was to dump the globe object that i created
 ```json
 {
 	"points": [
-		...
+		
 	],
 	"triangles": [
-		...
+
 	]
 }
 ```

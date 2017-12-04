@@ -23,7 +23,7 @@ The elevation data is stored in the following format:
 | ...    | ...                                |
 | int16  | elevation for n<sup>th</sup> point |
 
-For an explanation of this format and a history of the previous formats I used to store this data, check out my [Elevation Data History](./elevation_history.md) document.
+For an explanation of this format and a history showing how I brought the size of my elevation data file from  12.1 MB all the way down to 81 KB, check out my [Elevation Data History](./elevation_history.md) document.
 
 ## Colors
 
