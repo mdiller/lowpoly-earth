@@ -1,22 +1,21 @@
 var THREE = require("three");
 var $ = require("jquery");
-var icosphere = require("./icosphere.js");
 var color_gradient = require("./color_gradient.json");
 
 var config_info = require("./config.json");
 
-var elevation_buffer = require("./elevation.dat");
+var Globe = require("./globe.js");
 
-
-var globe = bytesToGlobe(elevation_buffer);
 
 // Config variables and info set in initConfig()
-var config = {};
-initConfig();
+var config = initConfig();
+
+var globe = new Globe(config);
+
 
 console.log(`Hello! Welcome to the console of my LowPoly Globe!
 I've set this up to provide some timing information about my application`);
-console.time("entire initialization");
+console.time('entire globe initialization');
 
 var scene = new THREE.Scene();
 
@@ -42,8 +41,9 @@ var material = new THREE.MeshPhongMaterial({
 
 var ocean_geometry = new THREE.Geometry();
 var geometry = new THREE.Geometry(); 
-
 geometry.dynamic = true;
+
+var globe_object;
 
 var clock = new THREE.Clock;
 
@@ -52,6 +52,7 @@ var zoom_start = 2.5;
 camera.position.z = zoom_start;
 light.position.z = zoom_start;
 
+loadGlobe();
 
 // These shall be used to hold information for controlling the camera position
 var controls = {
@@ -63,7 +64,65 @@ var controls = {
 	actual_phi: 0,
 	zoom: zoom_start,
 	actual_zoom: zoom_start,
-	touch_delta: 0
+	touch_delta: 0,
+	rotation_speed: 0
+}
+
+
+// Creates and adds the globe to the scene
+function loadGlobe() {
+	//// Ocean
+	globe.points.forEach(point => {
+		ocean_geometry.vertices.push(pointToVector(point, false));
+	});
+	globe.triangles.forEach((triangle, index) => {
+		ocean_geometry.faces.push(triangleToFace(index, false));
+	});
+
+	var ocean_material = new THREE.MeshBasicMaterial({ 
+		color: 0x0000ff, 
+		transparent: true,
+		opacity: 0.5
+	});
+	var ocean = new THREE.Mesh(ocean_geometry, ocean_material);
+	scene.add(ocean);
+
+	console.time('computing vertex colors');
+	globe.points.forEach(point => {
+		point.color = elevationColorThree(point.elevation);
+	});
+	console.timeEnd('computing vertex colors');
+
+	console.time('adding vertices');
+	globe.points.forEach(point => {
+		geometry.vertices.push(pointToVector(point));
+	});
+	console.timeEnd('adding vertices');
+
+	console.time('adding triangles');
+	globe.triangles.forEach((triangle, index) => {
+		geometry.faces.push(triangleToFace(index));
+	});
+	console.timeEnd('adding triangles');
+
+	if (config.render_globe_interior) {
+		material.side = THREE.DoubleSide;
+	}
+
+	globe_object = new THREE.Mesh(geometry, material);
+	scene.add(globe_object);
+
+
+	console.time('computing face normals');
+	geometry.computeFaceNormals();
+	console.timeEnd('computing face normals');
+	if (config.compute_vertex_normals) {
+		console.time('computing vertex normals');
+		geometry.computeVertexNormals();
+		console.timeEnd('computing vertex normals');
+	}
+
+	console.timeEnd('entire globe initialization');
 }
 
 // Finds an x, y, z position on a globe given a theta, phi, and radius
@@ -90,6 +149,9 @@ var animate = function () {
 	var zoom_threshold = 0.0005;
 
 	var camera_changed = false;
+
+	var rotation_acceleration = Math.min(2 * clock_delta, 1);
+	var rotation_full_speed = 0.01;
 
 
 	if (controls.zoom != controls.actual_zoom) {
@@ -135,6 +197,17 @@ var animate = function () {
 		);
 		camera.lookAt(new THREE.Vector3(0, 0, 0));
 		camera.updateMatrix();
+	}
+
+	if (config.rotation && controls.rotation_speed != 1) {
+		controls.rotation_speed = Math.min(controls.rotation_speed + rotation_acceleration, 1);
+	}
+	else if (!config.rotation && controls.rotation_speed != 0) {
+		controls.rotation_speed = Math.max(controls.rotation_speed - rotation_acceleration, 0);
+	}
+
+	if (controls.rotation_speed > 0) {
+		globe_object.rotation.y += controls.rotation_speed * rotation_full_speed;
 	}
 
 	renderer.render(scene, camera);
@@ -286,24 +359,6 @@ window.addEventListener('resize', resizeCanvas, false);
 
 //// Globe stuff
 
-function bytesToGlobe(buffer) {
-	// See README.md for an explanation of how elevation.dat is formatted
-	// Also, see elevation_history.md for an explanation of how I used to format this data
-
-	var header = new Int16Array(buffer.buffer, 0, 1);
-	var recursion_level = header[0];
-
-	var globe = icosphere.create(recursion_level);
-
-	var elevation_ints = new Int16Array(buffer.buffer, 2, globe.points.length);
-
-	globe.points.forEach((point, i) => {
-		point.elevation = elevation_ints[i];
-	});
-
-	return globe;
-}
-
 
 // Gets a color based on an elevation
 // Uses a color gradient. See color_gradient/build_color_gradiant.js for more info
@@ -415,66 +470,6 @@ function triangleToFace(index, add_colors=true) {
 	return face;
 }
 
-// Creates and adds the globe to the scene
-function loadGlobe() {
-	//// Ocean
-	globe.points.forEach(point => {
-		ocean_geometry.vertices.push(pointToVector(point, false));
-	});
-	globe.triangles.forEach((triangle, index) => {
-		ocean_geometry.faces.push(triangleToFace(index, false));
-	});
-
-	var ocean_material = new THREE.MeshBasicMaterial({ 
-		color: 0x0000ff, 
-		transparent: true,
-		opacity: 0.5
-	});
-	var ocean = new THREE.Mesh(ocean_geometry, ocean_material);
-	scene.add(ocean);
-
-	console.time('computing vertex colors');
-	globe.points.forEach(point => {
-		point.color = elevationColorThree(point.elevation);
-	});
-	console.timeEnd('computing vertex colors');
-
-	console.time('adding vertices');
-	globe.points.forEach(point => {
-		geometry.vertices.push(pointToVector(point));
-	});
-	console.timeEnd('adding vertices');
-
-	console.time('adding triangles');
-	globe.triangles.forEach((triangle, index) => {
-		geometry.faces.push(triangleToFace(index));
-	});
-	console.timeEnd('adding triangles');
-
-	if (config.render_globe_interior) {
-		material.side = THREE.DoubleSide;
-	}
-
-	var globe_object = new THREE.Mesh(geometry, material);
-	scene.add(globe_object);
-
-
-	console.time('computing face normals');
-	geometry.computeFaceNormals();
-	console.timeEnd('computing face normals');
-	if (config.compute_vertex_normals) {
-		console.time('computing vertex normals');
-		geometry.computeVertexNormals();
-		console.timeEnd('computing vertex normals');
-	}
-
-	console.time('animating');
-	animate();
-	console.timeEnd('animating');
-
-	console.timeEnd('entire globe initialization');
-	console.timeEnd("entire initialization");
-}
 
 //// Config Stuff
 var config_cog = document.getElementById("config-cog");
@@ -496,8 +491,8 @@ function createConfigElement(config_item) {
 				id="${element_id}" 
 				class="${config_element_class}"
 				type="range"
-				min="1"
-				max="580"
+				min="${config_item.min}"
+				max="${config_item.max}"
 				value="${config_item.default}">
 			</input>`,
 		boolean: `
@@ -553,6 +548,7 @@ function configElementChangedHandler() {
 
 // Initializes the config object
 function initConfig() {
+	var config = {};
 	config_info.forEach(config_item => {
 		config[config_item.name] = config_item.default;
 
@@ -560,6 +556,8 @@ function initConfig() {
 	});
 
 	$(`.${config_element_class}`).change(configElementChangedHandler);
+
+	return config;
 }
 
 // Function to call when there is config work to be done
@@ -586,6 +584,23 @@ function doConfigAction(new_config) {
 		geometry.verticesNeedUpdate = true;
 	}
 
+	if (dirty.recursion_level) {
+		globe.generateTriangles();
+		var hidden_face = new THREE.Face3(0, 0, 0);
+
+		geometry.faces.forEach((face, index) => {
+			face.copy(index < globe.triangles.length ? triangleToFace(index) : hidden_face);
+		});
+		ocean_geometry.faces.forEach((face, index) => {
+			face.copy(index < globe.triangles.length ? triangleToFace(index, false) : hidden_face);
+		});
+
+		geometry.computeFaceNormals();
+		geometry.elementsNeedUpdate = true;
+		ocean_geometry.computeFaceNormals();
+		ocean_geometry.elementsNeedUpdate = true;
+	}
+
 	if (dirty.triangle_coloring) {
 		geometry.faces.forEach((face, index) => {
 			colorFace(face, index);
@@ -605,5 +620,3 @@ function doConfigAction(new_config) {
 		geometry.elementsNeedUpdate = true;
 	}
 }
-
-loadGlobe();

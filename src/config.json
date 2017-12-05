@@ -1,5 +1,13 @@
 [
 	{
+		"name": "recursion_level",
+		"label": "Polygon Count",
+		"type": "integer",
+		"min": 1,
+		"max": 6,
+		"default": 6
+	},
+	{
 		"name": "elevation_scale",
 		"label": "Elevation Scale",
 		"type": "integer",
@@ -42,5 +50,11 @@
 				"localized": "All Vertex Colors (gradient)"
 			}
 		]
+	},
+	{
+		"name": "rotation",
+		"label": "Rotation",
+		"type": "boolean",
+		"default": false
 	}
 ]
