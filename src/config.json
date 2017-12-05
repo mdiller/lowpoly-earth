@@ -12,7 +12,7 @@
 		"label": "Elevation Scale",
 		"type": "integer",
 		"min": 1,
-		"max": 580,
+		"max": 800,
 		"default": 400
 	},
 	{
