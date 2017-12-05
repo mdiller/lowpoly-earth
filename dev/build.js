@@ -7,7 +7,7 @@ config = JSON.parse(fs.readFileSync("build_config.json", "utf8"));
 var googleMapsClient = require('@google/maps').createClient({
 	key: config.google_api_key
 });
-var outfile = "../public/elevation.dat";
+var outfile = "../src/elevation.dat";
 
 
 function aboutEqual(a, b, error) {

@@ -5,6 +5,10 @@ var color_gradient = require("./color_gradient.json");
 
 var config_info = require("./config.json");
 
+var elevation_buffer = require("./elevation.dat");
+
+
+var globe = bytesToGlobe(elevation_buffer);
 
 // Config variables and info set in initConfig()
 var config = {};
@@ -48,10 +52,6 @@ var zoom_start = 2.5;
 camera.position.z = zoom_start;
 light.position.z = zoom_start;
 
-// These shall be filled in the ajax call at the end of the file
-var json_data = {
-	globe: null
-}
 
 // These shall be used to hold information for controlling the camera position
 var controls = {
@@ -290,12 +290,12 @@ function bytesToGlobe(buffer) {
 	// See README.md for an explanation of how elevation.dat is formatted
 	// Also, see elevation_history.md for an explanation of how I used to format this data
 
-	var header = new Int16Array(buffer, 0, 1);
+	var header = new Int16Array(buffer.buffer, 0, 1);
 	var recursion_level = header[0];
 
 	var globe = icosphere.create(recursion_level);
 
-	var elevation_ints = new Int16Array(buffer, 2, globe.points.length);
+	var elevation_ints = new Int16Array(buffer.buffer, 2, globe.points.length);
 
 	globe.points.forEach((point, i) => {
 		point.elevation = elevation_ints[i];
@@ -363,7 +363,6 @@ function pointToVector(point, use_elevation=true) {
 
 // Colors a face when given its index
 function colorFace(face, index) {
-	var globe = json_data.globe;
 	var triangle = globe.triangles[index];
 
 	var points = [
@@ -405,7 +404,7 @@ function colorFace(face, index) {
 // Converts a triangle from globe.json into a THREE.Vector3
 // Passed the index of the triangle instead of the triangle itself, to allow for freedom
 function triangleToFace(index, add_colors=true) {
-	var triangle = json_data.globe.triangles[index];
+	var triangle = globe.triangles[index];
 
 	var face = new THREE.Face3(triangle.p1, triangle.p2, triangle.p3);
 
@@ -418,8 +417,6 @@ function triangleToFace(index, add_colors=true) {
 
 // Creates and adds the globe to the scene
 function loadGlobe() {
-	var globe = json_data.globe;
-
 	//// Ocean
 	globe.points.forEach(point => {
 		ocean_geometry.vertices.push(pointToVector(point, false));
@@ -578,7 +575,7 @@ function doConfigAction(new_config) {
 	}
 
 	if (dirty.elevation_scale) {
-		json_data.globe.points.forEach((point, i) => {
+		globe.points.forEach((point, i) => {
 			var vector = pointToVector(point);
 			geometry.vertices[i].x = vector.x;
 			geometry.vertices[i].y = vector.y;
@@ -609,39 +606,4 @@ function doConfigAction(new_config) {
 	}
 }
 
-
-// Returns a Promise for a http request to get a binary file
-function getBINARY(url) {
-	return new Promise(function (resolve, reject) {
-		var xhr = new XMLHttpRequest();
-		xhr.open("GET", url, true);
-		xhr.responseType = "arraybuffer";
-		xhr.onload = function () {
-			if (this.status >= 200 && this.status < 300) {
-				resolve(xhr.response);
-			}
-			else {
-				reject({
-					status: this.status,
-					statusText: xhr.statusText
-				});
-			}
-		};
-		xhr.onerror = function () {
-			reject({
-				status: this.status,
-				statusText: xhr.statusText
-			});
-		};
-		xhr.send();
-	});
-}
-
-console.time('entire globe initialization');
-console.time('loading elevation.dat');
-$.when(
-	getBINARY("./elevation.dat").then(response => {
-		json_data.globe = bytesToGlobe(response);
-		console.timeEnd('loading elevation.dat');
-	})
-).then(loadGlobe);
+loadGlobe();
