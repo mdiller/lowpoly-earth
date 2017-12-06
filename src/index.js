@@ -471,7 +471,7 @@ function createConfigElement(config_item) {
 					${config_item.label}
 				</input>
 			</label>`,
-		select: `
+		enum: `
 			<label for="${element_id}">${config_item.label}</label>
 			<select
 				id="${element_id}"

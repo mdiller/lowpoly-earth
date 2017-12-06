@@ -30,7 +30,7 @@
 	{
 		"name": "triangle_coloring",
 		"label": "Triangle Coloring",
-		"type": "select",
+		"type": "enum",
 		"default": "max",
 		"options": [
 			{
@@ -54,7 +54,7 @@
 	{
 		"name": "color_gradient",
 		"label": "Color Gradient",
-		"type": "select",
+		"type": "enum",
 		"default": "GMT_globe",
 		"options": [
 			{
@@ -62,8 +62,16 @@
 				"localized": "Standard Globe"
 			},
 			{
+				"name": "GMT_dem4",
+				"localized": "High Contrast"
+			},
+			{
+				"name": "GMT_sealand",
+				"localized": "Relief"
+			},
+			{
 				"name": "GMT_topo",
-				"localized": "Topographical"
+				"localized": "Strange"
 			}
 		]
 	},
