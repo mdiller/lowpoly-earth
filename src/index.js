@@ -544,7 +544,7 @@ function doConfigAction(new_config) {
 
 	if (dirty.render_globe_interior) {
 		material.side = config.render_globe_interior ? THREE.DoubleSide : THREE.FrontSide;
-		geometry.elementsNeedUpdate = true;
+		material.needsUpdate = true;
 	}
 
 	if (dirty.elevation_scale) {
