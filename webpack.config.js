@@ -22,6 +22,10 @@ module.exports = function(env) {
 				{
 					test: /\.dat$/,
 					loader: "buffer-loader"
+				},
+				{
+					test: /\.pg$/,
+					loader: "raw-loader"
 				}
 			]
 		},

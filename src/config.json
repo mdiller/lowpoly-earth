@@ -52,6 +52,22 @@
 		]
 	},
 	{
+		"name": "color_gradient",
+		"label": "Color Gradient",
+		"type": "select",
+		"default": "GMT_globe",
+		"options": [
+			{
+				"name": "GMT_globe",
+				"localized": "Standard Globe"
+			},
+			{
+				"name": "GMT_topo",
+				"localized": "Topographical"
+			}
+		]
+	},
+	{
 		"name": "rotation",
 		"label": "Rotation",
 		"type": "boolean",

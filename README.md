@@ -29,4 +29,4 @@ For an explanation of this format and a history showing how I brought the size o
 
 An important feature of this project is that I wanted it to look good. Colors are often used to achieve that goal, and I wanted to make sure that it would be fairly easy to switch between different color schemes until I found one that I liked. I also wanted the color to be dependant on the elevation, as that is common for geographic maps / models.
 
-I decided to use a color gradient from a [site](http://soliton.vm.bytemark.co.uk/pub/cpt-city/) which offered a wide variety of gradients to choose from. I then created [build_color_gradient.js](dev/color_gradient/build_color_gradient.js) which builds the .c3g file into a nicer .json format. The gradient is then loaded into the application on startup, and applied to each triangle as needed.
+I decided to use a color gradient from a [site](http://soliton.vm.bytemark.co.uk/pub/cpt-city/) which offered a wide variety of gradients to choose from. I downloaded a few of the gradients I found there, and made it configurable so you could choose which one to use.

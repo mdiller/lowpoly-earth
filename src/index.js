@@ -1,6 +1,6 @@
 var THREE = require("three");
 var $ = require("jquery");
-var color_gradient = require("./color_gradient.json");
+var ColorGradient = require("./color_gradient.js");
 
 var config_info = require("./config.json");
 
@@ -9,6 +9,8 @@ var Globe = require("./globe.js");
 
 // Config variables and info set in initConfig()
 var config = initConfig();
+
+var color_gradient = new ColorGradient(config.color_gradient);
 
 var globe = new Globe(config);
 
@@ -89,7 +91,7 @@ function loadGlobe() {
 
 	console.time('computing vertex colors');
 	globe.points.forEach(point => {
-		point.color = elevationColorThree(point.elevation);
+		point.color = color_gradient.getColor(point.elevation);
 	});
 	console.timeEnd('computing vertex colors');
 
@@ -359,41 +361,6 @@ window.addEventListener('resize', resizeCanvas, false);
 
 //// Globe stuff
 
-
-// Gets a color based on an elevation
-// Uses a color gradient. See color_gradient/build_color_gradiant.js for more info
-function elevationColor(elevation) {
-	var i = 0;
-	while (i < color_gradient.length && elevation > color_gradient[i].elevation) {
-		i++;
-	}
-	if (i == 0) {
-		return color_gradient[0].color;
-	}
-	if (i == color_gradient.length) {
-		return color_gradient[color_gradient.length - 1].color;
-	}
-
-	var min = color_gradient[i - 1];
-	var max = color_gradient[i];
-
-	if (max.elevation - min.elevation == 0) {
-		return min.color;
-	}
-	var percent = (elevation - min.elevation) / (max.elevation - min.elevation);
-	return {
-		r: min.color.r + ((max.color.r - min.color.r) * percent),
-		g: min.color.g + ((max.color.g - min.color.g) * percent),
-		b: min.color.b + ((max.color.b - min.color.b) * percent),
-	};
-}
-
-// Converts a js object with keys r, g, and b into a THREE.Color object
-function elevationColorThree(elevation) {
-	var c = elevationColor(elevation);
-	return new THREE.Color(c.r / 255.0, c.g / 255.0, c.b / 255.0);
-}
-
 // Converts a point from globe.json into a THREE.Vector3
 // Takes elevation into account, adjusting for what we've configured
 function pointToVector(point, use_elevation=true) {
@@ -441,7 +408,7 @@ function colorFace(face, index) {
 			face.vertexColors[2] = color;
 			break;
 		case "avg":
-			var color = elevationColorThree(points.map(p => p.elevation).reduce((e1, e2) => e1 + e2) / points.length);
+			var color = color_gradient.getColor(points.map(p => p.elevation).reduce((e1, e2) => e1 + e2) / points.length);
 			face.vertexColors[0] = color;
 			face.vertexColors[1] = color;
 			face.vertexColors[2] = color;
@@ -568,6 +535,13 @@ function doConfigAction(new_config) {
 		config[key] = new_config[key]
 	});
 
+	if (dirty.color_gradient) {
+		color_gradient = new ColorGradient(config.color_gradient);
+		globe.points.forEach(point => {
+			point.color = color_gradient.getColor(point.elevation);
+		});
+	}
+
 	if (dirty.render_globe_interior) {
 		material.side = config.render_globe_interior ? THREE.DoubleSide : THREE.FrontSide;
 		geometry.elementsNeedUpdate = true;
@@ -602,7 +576,7 @@ function doConfigAction(new_config) {
 		ocean_geometry.elementsNeedUpdate = true;
 	}
 
-	if (dirty.triangle_coloring) {
+	if (dirty.triangle_coloring || dirty.color_gradient) {
 		geometry.faces.forEach((face, index) => {
 			colorFace(face, index);
 		});
