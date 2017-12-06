@@ -30,11 +30,16 @@ resizeCanvas();
 //// Lighting
 
 // Ambient light
-light = new THREE.AmbientLight(0x404040);
-scene.add( light );
+var ambient_light = new THREE.AmbientLight(0xffffff, config.ambient_light_intensity);
+scene.add(ambient_light);
+
+// White directional light at half intensity shining from the top.
+var sunlight = new THREE.DirectionalLight(0xffffff, config.sunlight_intensity);
+sunlight.position.set(1, 0, 0);
+scene.add(sunlight);
 
 // Follows the camera
-var light = new THREE.PointLight(0xffffff);
+var light = new THREE.PointLight(0xffffff, config.camera_light_intensity);
 scene.add(light);
 
 // MeshBasicMaterial
@@ -84,11 +89,12 @@ function loadGlobe() {
 		ocean_geometry.faces.push(triangleToFace(index, false));
 	});
 
-	var ocean_material = new THREE.MeshBasicMaterial({ 
+	var ocean_material = new THREE.MeshLambertMaterial({ 
 		color: 0x0000ff, 
 		transparent: true,
 		opacity: 0.5
 	});
+	ocean_geometry.computeFaceNormals();
 	var ocean = new THREE.Mesh(ocean_geometry, ocean_material);
 	scene.add(ocean);
 
@@ -474,6 +480,18 @@ function createConfigElement(config_item) {
 				id="${element_id}" 
 				class="${config_element_class}"
 				type="range"
+				step="1"
+				min="${config_item.min}"
+				max="${config_item.max}"
+				value="${config_item.default}">
+			</input>`,
+		float: `
+			<label for="${element_id}">${config_item.label}</label>
+			<input
+				id="${element_id}" 
+				class="${config_element_class}"
+				type="range"
+				step="0.01"
 				min="${config_item.min}"
 				max="${config_item.max}"
 				value="${config_item.default}">
@@ -550,6 +568,18 @@ function doConfigAction(new_config) {
 		dirty[key] = true
 		config[key] = new_config[key]
 	});
+	
+	// Lights
+	if (dirty.ambient_light_intensity) {
+		ambient_light.intensity = config.ambient_light_intensity;
+	}
+	if (dirty.camera_light_intensity) {
+		light.intensity = config.camera_light_intensity;
+	}
+	if (dirty.sunlight_intensity) {
+		sunlight.intensity = config.sunlight_intensity;
+	}
+
 
 	if (dirty.material) {
 		material = getGlobeMaterial();

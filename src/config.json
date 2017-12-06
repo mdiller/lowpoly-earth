@@ -104,5 +104,29 @@
 		"label": "Rotation",
 		"type": "boolean",
 		"default": false
+	},
+	{
+		"name": "ambient_light_intensity",
+		"label": "Ambient Light",
+		"type": "float",
+		"min": 0,
+		"max": 1,
+		"default": 0.25
+	},
+	{
+		"name": "camera_light_intensity",
+		"label": "Camera Light",
+		"type": "float",
+		"min": 0,
+		"max": 1,
+		"default": 1
+	},
+	{
+		"name": "sunlight_intensity",
+		"label": "Sunlight",
+		"type": "float",
+		"min": 0,
+		"max": 1,
+		"default": 0
 	}
 ]
