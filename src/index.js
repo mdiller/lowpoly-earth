@@ -37,9 +37,12 @@ scene.add( light );
 var light = new THREE.PointLight(0xffffff);
 scene.add(light);
 
-var material = new THREE.MeshPhongMaterial({
-	vertexColors: THREE.VertexColors
-});
+// MeshBasicMaterial
+// MeshStandardMaterial
+// MeshPhongMaterial
+
+
+var material = getGlobeMaterial();
 
 var ocean_geometry = new THREE.Geometry();
 var geometry = new THREE.Geometry(); 
@@ -423,6 +426,19 @@ function colorFace(face, index) {
 	}
 }
 
+function getGlobeMaterial() {
+	var init = {
+		phong: options => new THREE.MeshPhongMaterial(options),
+		standard: options => new THREE.MeshStandardMaterial(options),
+		basic: options => new THREE.MeshBasicMaterial(options)
+	}[config.material];
+
+	return init({
+		vertexColors: THREE.VertexColors,
+		side: config.render_globe_interior ? THREE.DoubleSide : THREE.FrontSide
+	});
+}
+
 // Converts a triangle from globe.json into a THREE.Vector3
 // Passed the index of the triangle instead of the triangle itself, to allow for freedom
 function triangleToFace(index, add_colors=true) {
@@ -534,6 +550,11 @@ function doConfigAction(new_config) {
 		dirty[key] = true
 		config[key] = new_config[key]
 	});
+
+	if (dirty.material) {
+		material = getGlobeMaterial();
+		globe_object.material = material;
+	}
 
 	if (dirty.color_gradient) {
 		color_gradient = new ColorGradient(config.color_gradient);

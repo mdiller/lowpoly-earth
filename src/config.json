@@ -55,15 +55,15 @@
 		"name": "color_gradient",
 		"label": "Color Gradient",
 		"type": "enum",
-		"default": "GMT_simple",
+		"default": "GMT_globe",
 		"options": [
-			{
-				"name": "GMT_simple",
-				"localized": "Simple"
-			},
 			{
 				"name": "GMT_globe",
 				"localized": "Standard"
+			},
+			{
+				"name": "GMT_simple",
+				"localized": "Simple"
 			},
 			{
 				"name": "GMT_dem4",
@@ -76,6 +76,26 @@
 			{
 				"name": "GMT_topo",
 				"localized": "Strange"
+			}
+		]
+	},
+	{
+		"name": "material",
+		"label": "Material",
+		"type": "enum",
+		"default": "phong",
+		"options": [
+			{
+				"name": "phong",
+				"localized": "Phong"
+			},
+			{
+				"name": "standard",
+				"localized": "Standard"
+			},
+			{
+				"name": "basic",
+				"localized": "Basic"
 			}
 		]
 	},
