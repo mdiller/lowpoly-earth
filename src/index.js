@@ -1,6 +1,7 @@
 var THREE = require("three");
 var $ = require("jquery");
 var ColorGradient = require("./color_gradient.js");
+import ReactConfig from "./components/ReactConfig.jsx";
 
 var config_info = require("./config.json");
 
@@ -9,6 +10,8 @@ var Globe = require("./globe.js");
 
 // Config variables and info set in initConfig()
 var config = initConfig();
+
+ReactConfig(config_info, config);
 
 var color_gradient = new ColorGradient(config.color_gradient);
 
@@ -559,10 +562,10 @@ function initConfig() {
 	config_info.forEach(config_item => {
 		config[config_item.name] = config_item.default;
 
-		$("#config-content form").append(createConfigElement(config_item));
+		// $("#config-content form").append(createConfigElement(config_item));
 	});
 
-	$(`.${config_element_class}`).change(configElementChangedHandler);
+	// $(`.${config_element_class}`).change(configElementChangedHandler);
 
 	return config;
 }
