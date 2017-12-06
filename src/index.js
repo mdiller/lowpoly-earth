@@ -268,10 +268,16 @@ function touchesMove(x1, y1, x2, y2) {
 
 canvas_element.addEventListener('mousedown', event => {
 	event.preventDefault();
+	canvas_element.style.cursor = "grabbing";
 	if (event.button == 0) {
 		pressDown(event.clientX, event.clientY);
 	}
 }, false);
+
+// for if the user lets go out of the canvas
+window.addEventListener('mouseup', event => {
+	canvas_element.style.cursor = "grab";
+});
 
 canvas_element.addEventListener('mousemove', event => {
 	event.preventDefault();
