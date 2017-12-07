@@ -89,10 +89,10 @@ function loadGlobe() {
 		ocean_geometry.faces.push(triangleToFace(index, false));
 	});
 
-	var ocean_material = new THREE.MeshLambertMaterial({ 
+	var ocean_material = new THREE.MeshPhongMaterial({ 
 		color: 0x0000ff, 
 		transparent: true,
-		opacity: 0.5
+		opacity: 0.8
 	});
 	ocean_geometry.computeFaceNormals();
 	var ocean = new THREE.Mesh(ocean_geometry, ocean_material);
