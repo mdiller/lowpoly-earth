@@ -83,11 +83,11 @@
 		"name": "material",
 		"label": "Material",
 		"type": "enum",
-		"default": "phong",
+		"default": "lambert",
 		"options": [
 			{
-				"name": "phong",
-				"localized": "Phong"
+				"name": "lambert",
+				"localized": "Lambert"
 			},
 			{
 				"name": "standard",

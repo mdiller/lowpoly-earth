@@ -42,11 +42,6 @@ scene.add(sunlight);
 var light = new THREE.PointLight(0xffffff, config.camera_light_intensity);
 scene.add(light);
 
-// MeshBasicMaterial
-// MeshStandardMaterial
-// MeshPhongMaterial
-
-
 var material = getGlobeMaterial();
 
 var ocean_geometry = new THREE.Geometry();
@@ -440,7 +435,7 @@ function colorFace(face, index) {
 
 function getGlobeMaterial() {
 	var init = {
-		phong: options => new THREE.MeshPhongMaterial(options),
+		lambert: options => new THREE.MeshLambertMaterial(options),
 		standard: options => new THREE.MeshStandardMaterial(options),
 		basic: options => new THREE.MeshBasicMaterial(options)
 	}[config.material];
