@@ -25,6 +25,10 @@ The elevation data is stored in the following format:
 
 For an explanation of this format and a history showing how I brought the size of my elevation data file from  12.1 MB all the way down to 81 KB, check out my [Elevation Data History](./elevation_history.md) document.
 
+## Bundling
+
+As this project grew, I realized that I needed a way to manage the files I was linking together, and the assets that I was creating. To that end, I decided to use [Webpack](https://webpack.js.org/) to bundle all of my files into one bundle.js. Not only did this allow me to easily link several javascript files together, but it let me load my json files with the rest of my javascript, and even include elevation data file.
+
 ## Colors
 
 An important feature of this project is that I wanted it to look good. Colors are often used to achieve that goal, and I wanted to make sure that it would be fairly easy to switch between different color schemes until I found one that I liked. I also wanted the color to be dependant on the elevation, as that is common for geographic maps / models.
