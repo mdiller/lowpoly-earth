@@ -4,7 +4,7 @@
   "description": "",
   "main": "bundle.js",
   "scripts": {
-    "start": "webpack --watch",
+    "dev": "webpack --watch",
     "build": "npm install && webpack -p"
   },
   "repository": {

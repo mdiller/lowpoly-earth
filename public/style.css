@@ -17,57 +17,6 @@ a {
 	color: #AAAAAA;
 }
 
-#config-cog {
-	position: fixed;
-	right: 0;
-	top: 0;
-	width: 32px;
-	height: 32px;
-	margin: 16px;
-	cursor: pointer;
-
-	transition: transform 0.5s;
-}
-
-#config-cog.hidden {
-	transform: rotate(-180deg);
-}
-
-#config-box {
-	width: 500px;
-	background-color: #282a2e;
-	color: #FFFFFF;
-	opacity: 0.9;
-
-	position: fixed;
-	right: 0;
-	top: 0;
-	bottom: 0;
-
-	overflow-y: auto;
-
-	transform: none;
-
-	transition: transform 0.5s;
-}
-
-#config-box.hidden {
-	transform: translateX(100%);
-}
-
-#config-header {
-	text-align: center;
-}
-
-h1 {
-	margin-bottom: 0;
-}
-
-#config-content {
-	padding-left: 30px;
-	padding-bottom: 50px;
-}
-
 label {
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
@@ -78,12 +27,6 @@ label {
 	display: block;
 	margin-top: 15px;
 	margin-bottom: 5px;
-}
-
-@media only screen and (max-width: 800px) {
-	#config-box {
-		width: 100%;
-	}
 }
 
 .dillerm-nav-bar {

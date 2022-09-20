@@ -398,6 +398,10 @@ function pointToVector(point, use_elevation=true) {
 function colorFace(face, index) {
 	var triangle = globe.triangles[index];
 
+	if (!triangle) {
+		return;
+	}
+
 	var points = [
 		globe.points[triangle.p1],
 		globe.points[triangle.p2],
@@ -462,103 +466,14 @@ function triangleToFace(index, add_colors=true) {
 }
 
 
-//// Config Stuff
-var config_cog = document.getElementById("config-cog");
-var config_box = document.getElementById("config-box");
-
-config_cog.addEventListener("click", event => {
-	event.preventDefault();
-	config_cog.classList.toggle("hidden");
-	config_box.classList.toggle("hidden");
-});
-
-var config_element_class = "config_item";
-function createConfigElement(config_item) {
-	var element_id = `config_item_${config_item.name}`;
-	return {
-		integer: `
-			<label for="${element_id}">${config_item.label}</label>
-			<input
-				id="${element_id}" 
-				class="${config_element_class}"
-				type="range"
-				step="1"
-				min="${config_item.min}"
-				max="${config_item.max}"
-				value="${config_item.default}">
-			</input>`,
-		float: `
-			<label for="${element_id}">${config_item.label}</label>
-			<input
-				id="${element_id}" 
-				class="${config_element_class}"
-				type="range"
-				step="0.01"
-				min="${config_item.min}"
-				max="${config_item.max}"
-				value="${config_item.default}">
-			</input>`,
-		boolean: `
-			<label>
-				<input 
-					id="${element_id}" 
-					class="${config_element_class}"
-					type="checkbox">
-					${config_item.label}
-				</input>
-			</label>`,
-		enum: `
-			<label for="${element_id}">${config_item.label}</label>
-			<select
-				id="${element_id}"
-				class="${config_element_class}">
-				${(config_item.options || []).map(option => {
-					var selected = config_item.default == option.name ? " selected" : "";
-					return `
-						<option value="${option.name}"${selected}>
-							${option.localized}
-						</option>`;
-				}).join("\n")}
-			</select>`
-	}[config_item.type];
-}
-
-function configElementChanged(name, value) {
-	console.log(name, value);
-	var new_config = {}
-	new_config[name] = value;
-	doConfigAction(new_config);
-}
-
-// handler for jquery event, clean up and give to configElementChanged
-function configElementChangedHandler() {
-	var element = $(this);
-	var name = element.attr("id").replace("config_item_", "");
-
-	if (element.is("select")) {
-		configElementChanged(name, element.val());
-	}
-	else if (element.attr("type") == "checkbox") {
-		configElementChanged(name, element.is(":checked"));
-	}
-	else if (element.attr("type") == "range") {
-		configElementChanged(name, element.val());
-	}
-	else {
-		console.error("don't know what type of input this is!");
-	}
-}
+//// Config Stuff (most of this moved to dillerm-webutils now)
 
 // Initializes the config object
 function initConfig() {
 	var config = {};
 	config_info.forEach(config_item => {
 		config[config_item.name] = config_item.default;
-
-		$("#config-content form").append(createConfigElement(config_item));
 	});
-
-	$(`.${config_element_class}`).change(configElementChangedHandler);
 
 	return config;
 }
