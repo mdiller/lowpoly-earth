@@ -5,7 +5,7 @@
   "main": "bundle.js",
   "scripts": {
     "dev": "webpack --watch",
-    "build": "npm install && webpack -p"
+    "build": "webpack -p"
   },
   "repository": {
     "type": "git",
