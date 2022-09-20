@@ -3,6 +3,7 @@ var $ = require("jquery");
 var ColorGradient = require("./color_gradient.js");
 
 var config_info = require("./config.json");
+var PARAMETERS_DEFINITION = require("./parameters.json");
 
 var Globe = require("./globe.js");
 
@@ -566,8 +567,10 @@ function initConfig() {
 function doConfigAction(new_config) {
 	var dirty = {};
 	Object.keys(new_config).forEach(key => {
-		dirty[key] = true
-		config[key] = new_config[key]
+		if (new_config[key] != config[key]) {
+			dirty[key] = true;
+			config[key] = new_config[key];
+		}
 	});
 	
 	// Lights
@@ -647,3 +650,12 @@ function doConfigAction(new_config) {
 		geometry.elementsNeedUpdate = true;
 	}
 }
+
+
+DillermWebUtils.init("#navbar", {
+	github_url: "https://github.com/mdiller/lowpoly-earth",
+	parameters: PARAMETERS_DEFINITION,
+	parameters_callback: values => {
+		doConfigAction(values);
+	}
+});

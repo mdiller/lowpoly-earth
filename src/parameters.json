@@ -1,0 +1,131 @@
+[
+	{
+		"name": "recursion_level",
+		"label": "Polygon Density",
+		"type": "slider",
+		"min": 1,
+		"max": 6,
+		"default": 6
+	},
+	{
+		"name": "elevation_scale",
+		"label": "Elevation Scale",
+		"type": "slider",
+		"min": 1,
+		"max": 800,
+		"default": 400
+	},
+	{
+		"name": "compute_vertex_normals",
+		"label": "Use Vertex Normals",
+		"type": "checkbox",
+		"default": false
+	},
+	{
+		"name": "render_globe_interior",
+		"label": "Render Globe Interior",
+		"type": "checkbox",
+		"default": false
+	},
+	{
+		"name": "color_gradient",
+		"label": "Color Gradient",
+		"type": "select",
+		"default": "GMT_simple",
+		"options": [
+			{
+				"value": "GMT_simple",
+				"label": "Simple",
+				"icon_style": "background-image: linear-gradient(to left, rgb(201, 122, 52), rgb(217, 166, 39), rgb(102, 51, 0), rgb(30, 56, 8), rgb(60, 110, 9), rgb(51, 102, 0), rgb(100, 200, 255), rgb(80, 100, 190), rgb(60, 90, 180), rgb(21, 70, 170), rgb(21, 65, 150), rgb(12, 68, 120), rgb(0, 14, 100), rgb(16, 6, 50))"
+			},
+			{
+				"value": "GMT_globe",
+				"label": "Light",
+				"icon_style": "background-image: linear-gradient(to left, rgb(102, 51, 0), rgb(217, 166, 39), rgb(217, 166, 39), rgb(243, 202, 137), rgb(255, 220, 185), rgb(51, 204, 102), rgb(51, 102, 0), rgb(138, 227, 255), rgb(94, 223, 255), rgb(21, 158, 252), rgb(21, 158, 252), rgb(12, 68, 231), rgb(0, 14, 203), rgb(16, 6, 180))"
+			},
+			{
+				"value": "GMT_dem4",
+				"label": "High Contrast",
+				"icon_style": "background-image: linear-gradient(to left, rgb(102, 51, 0), rgb(110, 35, 8), rgb(118, 16, 2), rgb(163, 36, 2), rgb(220, 122, 2), rgb(207, 177, 28), rgb(110, 150, 52), rgb(9, 137, 56), rgb(110, 194, 74), rgb(248, 249, 172), rgb(192, 247, 178), rgb(174, 239, 213), rgb(50, 50, 233), rgb(50, 50, 233), rgb(50, 50, 233), rgb(50, 50, 233))"
+			},
+			{
+				"value": "GMT_sealand",
+				"label": "Relief",
+				"icon_style": "background-image: linear-gradient(to left, rgb(253, 249, 216), rgb(252, 243, 177), rgb(252, 238, 152), rgb(250, 234, 126), rgb(250, 230, 100), rgb(198, 178, 80), rgb(146, 126, 60), rgb(120, 100, 50), rgb(70, 120, 50), rgb(250, 255, 255), rgb(211, 250, 211), rgb(172, 245, 168), rgb(86, 197, 184), rgb(0, 150, 200), rgb(0, 80, 125), rgb(0, 10, 50), rgb(0, 5, 25), rgb(0, 0, 0))"
+			},
+			{
+				"value": "GMT_topo",
+				"label": "Strange",
+				"icon_style": "background-image: linear-gradient(to left, rgb(255, 248, 242), rgb(255, 240, 230), rgb(230, 216, 149), rgb(181, 204, 112), rgb(144, 204, 112), rgb(98, 178, 105), rgb(107, 178, 155), rgb(116, 163, 178), rgb(204, 153, 153), rgb(217, 163, 163), rgb(217, 154, 141), rgb(242, 179, 133), rgb(242, 224, 133), rgb(215, 242, 133), rgb(171, 242, 133), rgb(133, 242, 142), rgb(133, 242, 188), rgb(145, 242, 234), rgb(138, 200, 230), rgb(138, 168, 230), rgb(138, 138, 230), rgb(176, 138, 230), rgb(160, 119, 217), rgb(200, 119, 217))"
+			}
+		]
+	},
+	{
+		"name": "triangle_coloring",
+		"label": "Triangle Coloring",
+		"type": "select",
+		"default": "max",
+		"options": [
+			{
+				"value": "max",
+				"label": "Highest Vertex Color"
+			},
+			{
+				"value": "min",
+				"label": "Lowest Vertex Color"
+			},
+			{
+				"value": "avg",
+				"label": "Average Vertex Color"
+			},
+			{
+				"value": "all",
+				"label": "All Vertex Colors (gradient)"
+			}
+		]
+	},
+	{
+		"name": "material",
+		"label": "Material",
+		"type": "select",
+		"default": "lambert",
+		"options": [
+			{
+				"value": "lambert",
+				"label": "Lambert"
+			},
+			{
+				"value": "standard",
+				"label": "Standard"
+			},
+			{
+				"value": "basic",
+				"label": "Basic"
+			}
+		]
+	},
+	{
+		"name": "rotation",
+		"label": "Rotation",
+		"type": "checkbox",
+		"default": false
+	},
+	{
+		"name": "ambient_light_intensity",
+		"label": "Ambient Light",
+		"type": "percent",
+		"default": 0.25
+	},
+	{
+		"name": "camera_light_intensity",
+		"label": "Camera Light",
+		"type": "percent",
+		"default": 1
+	},
+	{
+		"name": "sunlight_intensity",
+		"label": "Sunlight",
+		"type": "percent",
+		"default": 0
+	}
+]

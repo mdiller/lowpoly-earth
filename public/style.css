@@ -85,3 +85,11 @@ label {
 		width: 100%;
 	}
 }
+
+.dillerm-nav-bar {
+	box-shadow: none;
+}
+
+.dillerm-config-panel {
+	opacity: 0.9;
+}
