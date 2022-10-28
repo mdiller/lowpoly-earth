@@ -568,6 +568,7 @@ function doConfigAction(new_config) {
 
 
 DillermWebUtils.init("#navbar", {
+	title: "Low-Poly Earth",
 	github_url: "https://github.com/mdiller/lowpoly-earth",
 	parameters: PARAMETERS_DEFINITION,
 	parameters_callback: values => {
